@@ -1,3 +1,5 @@
+// import 'dart:html';
+import 'dart:io';
 import 'package:attendance/managers/Student_manager.dart';
 
 import 'package:flutter/material.dart';
@@ -22,7 +24,7 @@ class _Student_Top_PageState extends State<Student_Top_Page> {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      height: widget.size.height * .12,
+      height: Platform.isWindows ? 100 : widget.size.height * .12,
       width: widget.size.width,
       padding: EdgeInsets.symmetric(horizontal: 20),
       alignment: Alignment.center,
@@ -38,7 +40,7 @@ class _Student_Top_PageState extends State<Student_Top_Page> {
                 child: Container(
                   // margin: EdgeInsets.symmetric(horizontal: 5),
                   padding: EdgeInsets.symmetric(horizontal: 20),
-                  height: widget.size.height * .05,
+                  height: Platform.isWindows ? 30 : widget.size.height * .05,
                   // width: 300,
                   decoration: BoxDecoration(
                     color: Colors.white,

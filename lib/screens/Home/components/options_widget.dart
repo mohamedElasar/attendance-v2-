@@ -1,9 +1,10 @@
+// import 'dart:html';
+import 'dart:io';
 import 'package:attendance/managers/App_State_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../constants.dart';
-
 
 class Options extends StatelessWidget {
   const Options({Key? key, required this.size}) : super(key: key);
@@ -11,7 +12,7 @@ class Options extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: size.height * .11,
+      height: Platform.isWindows ? 60 : size.height * .11,
       width: size.width,
       child: Container(
           decoration: BoxDecoration(color: Colors.white),

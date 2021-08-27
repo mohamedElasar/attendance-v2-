@@ -483,8 +483,8 @@ class Scan_button extends StatelessWidget {
       decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all()),
       child: Container(
         alignment: Alignment.center,
-        height: 70,
-        width: 70,
+        height: 50,
+        width: 50,
         padding: EdgeInsets.all(5),
         decoration: BoxDecoration(
             shape: BoxShape.circle,

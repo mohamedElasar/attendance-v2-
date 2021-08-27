@@ -216,7 +216,7 @@ class _Teacher_FormState extends State<Teacher_Form> {
     try {
       await Provider.of<TeacherManager>(context, listen: false)
           .update_teacher(
-            widget.eteacher!.id!.toString(),
+            widget.eteacher == null ? '' : widget.eteacher!.id!.toString(),
             nameController.text,
             phoneController.text,
             emailController.text,
@@ -337,7 +337,7 @@ class _Teacher_FormState extends State<Teacher_Form> {
 
   @override
   void initState() {
-    print(widget.eteacher!.id!);
+    // print(widget.eteacher!.id!);
 
     widget.edit!
         ? nameController.text = widget.eteacher!.name ?? ''

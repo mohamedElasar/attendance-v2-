@@ -917,7 +917,7 @@ class _group_formState extends State<group_form> {
                             child: Center(
                               child: Container(
                                 width: widget.size.width * .6,
-                                height: 30,
+                                height: 25,
                                 decoration: BoxDecoration(
                                     border: Border.all(color: Colors.grey),
                                     color: kbuttonColor2.withOpacity(.7),
@@ -940,9 +940,9 @@ class _group_formState extends State<group_form> {
                               ),
                             ),
                           ),
-                          SizedBox(
-                            height: 5,
-                          ),
+                          // SizedBox(
+                          //   height: 5,
+                          // ),
                           Dismissible(
                             background: Container(
                               // color: Colors.red,
@@ -1138,7 +1138,7 @@ class _group_formState extends State<group_form> {
         alignment: Alignment.centerRight,
         width: small ? widget.size.width * .9 / 2 : widget.size.width * .9,
         padding: EdgeInsets.symmetric(horizontal: 20),
-        height: 50,
+        height: 45,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
