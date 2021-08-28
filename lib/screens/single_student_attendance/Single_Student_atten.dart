@@ -36,21 +36,20 @@ class Single_Student_attend extends StatelessWidget {
           //   Icons.menu,
           //   color: Colors.black,
           // ),
-          actions: [
-            InkWell(
-              onTap: () {
-                Provider.of<AppStateManager>(context, listen: false)
-                    .goToSingleStudentAttend(false, '');
-              },
-              child: Icon(
-                Icons.arrow_forward,
-                color: Colors.black,
-              ),
+          leading: InkWell(
+            onTap: () {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .goToSingleStudentAttend(false, '');
+            },
+            child: Icon(
+              Icons.arrow_back,
+              color: Colors.black,
             ),
-            SizedBox(
-              width: 10,
-            )
-          ],
+          ),
+          // SizedBox(
+          //   width: 10,
+          // )
+
           backgroundColor: Colors.white,
           elevation: 0,
           title: Center(

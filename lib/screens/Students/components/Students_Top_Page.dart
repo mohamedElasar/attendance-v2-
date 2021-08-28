@@ -36,6 +36,16 @@ class _Student_Top_PageState extends State<Student_Top_Page> {
           Row(
             children: [
               SizedBox(width: 10),
+              widget.arrowback
+                  ? InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(
+                        Icons.arrow_back,
+                      ),
+                    )
+                  : Container(),
               Expanded(
                 child: Container(
                   // margin: EdgeInsets.symmetric(horizontal: 5),
@@ -127,19 +137,7 @@ class _Student_Top_PageState extends State<Student_Top_Page> {
                 ),
               ),
               SizedBox(width: 5),
-              widget.arrowback
-                  ? InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: RotatedBox(
-                        quarterTurns: 2,
-                        child: Icon(
-                          Icons.arrow_back,
-                        ),
-                      ),
-                    )
-                  : Container(),
+              Container(),
             ],
           ),
         ],

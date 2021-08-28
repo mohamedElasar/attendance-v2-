@@ -480,4 +480,46 @@ class StudentManager extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  Future<void> getStudentAbs(String lessid) async {
+    // print(_pageNumber);
+    var url = Uri.https('development.mrsaidmostafa.com',
+        '/api/absence/appointments/${lessid}', {
+      "page": _pageNumber.toString(),
+    });
+    print(url);
+
+    try {
+      var response = await http.get(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer $_authToken'
+        },
+      );
+
+      final responseData = json.decode(response.body);
+
+      List<dynamic> studentsList = responseData['data'];
+      // print(studentsList[0]['groups']);
+      // print(StudentModelSearch.fromJson(studentsList[0]).code);
+      // __students.add(StudentModelSearch.fromJson(studentsList[0]));
+
+      List<StudentModelSearch> fetchedstudents = studentsList
+          .map((data) => StudentModelSearch.fromJson(data))
+          .toList();
+      _hasMore = fetchedstudents.length == _defaultPerPageCount;
+      _loading = false;
+      _pageNumber = _pageNumber + 1;
+
+      __students.addAll(fetchedstudents);
+    } catch (e) {
+      print(e);
+      _loading = false;
+      _error = true;
+      notifyListeners();
+    }
+
+    notifyListeners();
+  }
 }
