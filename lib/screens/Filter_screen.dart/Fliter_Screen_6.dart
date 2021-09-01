@@ -813,7 +813,7 @@ class _MyListItemState extends State<MyListItem> {
                 ? null
                 : () {
                     // _onTap();
-                   // _onSelected(widget.index);
+                   _onSelected(widget.index);
                     print('indexxxxxxxxxxx');
                     print(widget.index);
                     print('_selectedIndexXXX');
@@ -873,7 +873,8 @@ class _MyListItemState extends State<MyListItem> {
                         // &&
                         // _changeColor()
                         &&
-                        is_clicked_absence == true &&
+                        is_clicked_absence == true
+                         &&
                         is_finished == false
                     //? Colors.yellow
                     ? Colors.red
@@ -885,7 +886,7 @@ class _MyListItemState extends State<MyListItem> {
             onTap: _press_enabled == false
                 ? null
                 : () {
-                    _onSelected(widget.index);
+                   _onSelected(widget.index);
                     print('indexxxxxxxxxxx');
                     print(widget.index);
                     print('_selectedIndexXXX');
@@ -895,7 +896,7 @@ class _MyListItemState extends State<MyListItem> {
                       setState(() {
                         is_clicked = !is_clicked;
                         // mycolor = Colors.red;
-                        _selectedIndex;
+                       _selectedIndex;
                         if (!my_lesson_id.contains(
                             widget.appmgr.group_students[widget.index].id)) {
                           my_lesson_id.add(
