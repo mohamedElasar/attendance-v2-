@@ -212,7 +212,8 @@ class AppointmentManager extends ChangeNotifier {
         'code': code,
       });
       final responseData = json.decode(response.body);
-
+      print('responssse attend');
+      print(responseData);
       print(code);
       print(lessonid);
       if (response.statusCode == 422) {

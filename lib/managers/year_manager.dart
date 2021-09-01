@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:attendance/models/year.dart';
 
 class YearManager extends ChangeNotifier {
+  static List<YearModel> all_years = [];
   void receiveToken(Auth_manager auth, List<YearModel> years) {
     _authToken = auth.token;
     _years = years;
@@ -100,6 +101,7 @@ class YearManager extends ChangeNotifier {
       _pageNumber = _pageNumber + 1;
 
       _years.addAll(fetchedYears);
+      all_years = _years;
     } catch (e) {
       _loading = false;
       _error = true;
