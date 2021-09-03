@@ -21,6 +21,8 @@ class StudentManager extends ChangeNotifier {
     __students = students;
   }
 
+  int? _studNumberInGroup;
+
   String? _authToken;
   List<StudentModelSearch> __students = [];
   List<StudentModelSimple> _studentsSimple = [];
@@ -28,6 +30,7 @@ class StudentManager extends ChangeNotifier {
   List<StudentModelSearch> get students => __students;
   List<StudentModelSimple> get studentsSimple => _studentsSimple;
   Student4ModelSearch? get singleStudent => _singleStudent;
+  int? get studNumberInGroup => _studNumberInGroup;
 
   get hasmore => _hasMore;
   get pageNumber => _pageNumber;
@@ -64,12 +67,16 @@ class StudentManager extends ChangeNotifier {
     dynamic secondLanguage,
     String? discount,
     String? code,
+    String identification,
     // String? password,
     // String? passwordconfirmation,
     // String? parentemail,
     // String? parentpassword,
   ) async {
     try {
+      print(identification);
+      print(identification);
+      print(identification);
       Dio dio = Dio();
       String urld = 'https://development.mrsaidmostafa.com/api/students';
 
@@ -95,6 +102,7 @@ class StudentManager extends ChangeNotifier {
         'discount': discount,
         'code': code,
         'second_language': secondLanguage,
+        'identification': identification
         // 'parent_email': parentemail,
         // 'parent_password': parentpassword,
       };
@@ -148,6 +156,7 @@ class StudentManager extends ChangeNotifier {
     String? code,
     String? password,
     String? passwordconfirmation,
+    String identification,
   ) async {
     try {
       Dio dio = Dio();
@@ -176,7 +185,8 @@ class StudentManager extends ChangeNotifier {
         'discount': discount,
         'code': code,
         'second_language': secondLanguage,
-        'note': note
+        'note': note,
+        'identification': identification
       };
       dio.options.headers["Authorization"] = 'Bearer $_authToken';
       dio.options.headers["Accept"] = 'application/json';
@@ -259,6 +269,8 @@ class StudentManager extends ChangeNotifier {
       final responseData = json.decode(response.body);
 
       List<dynamic> studentsList = responseData['data'];
+      _studNumberInGroup = responseData['meta']['total'];
+
       // print(studentsList[0]['groups']);
       // print(StudentModelSearch.fromJson(studentsList[0]).code);
       // __students.add(StudentModelSearch.fromJson(studentsList[0]));
@@ -361,6 +373,40 @@ class StudentManager extends ChangeNotifier {
     }
   }
 
+  Future<void> searchStudentforattend(String filter1) async {
+    try {
+      var url = Uri.https('development.mrsaidmostafa.com', '/api/students', {
+        "name": filter1,
+      });
+      print(url);
+
+      print(url);
+      var response = await http.get(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer $_authToken'
+        },
+      );
+
+      final responseData = json.decode(response.body);
+      List<dynamic> studentsList = responseData['data'];
+
+      List<StudentModelSearch> list = studentsList
+          .map((data) => StudentModelSearch.fromJson(data))
+          .toList();
+      print(list);
+      __students = list;
+      notifyListeners();
+
+      // return list;
+    } catch (e) {
+      print(e);
+      throw e;
+    }
+    notifyListeners();
+  }
+
   Future<List<StudentModelSearch>> searchcodeStudent(String filter2) async {
     try {
       var url = Uri.https('development.mrsaidmostafa.com', '/api/students', {
@@ -393,6 +439,42 @@ class StudentManager extends ChangeNotifier {
       print(e);
       throw e;
     }
+  }
+
+  Future<void> searchcodeStudent2(String filter1, String filter2) async {
+    try {
+      var url = Uri.https('development.mrsaidmostafa.com', '/api/students', {
+        "code": filter2,
+        "group_id": filter1,
+      });
+
+      print(url);
+      var response = await http.get(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer $_authToken'
+        },
+      );
+
+      final responseData = json.decode(response.body);
+      // print(responseData);
+      List<dynamic> studentsList = responseData['data'];
+      // print(studentsList[0]);
+      // print(studentsList);
+      // print(StudentModelSearch.fromJson(studentsList[0]));
+
+      List<StudentModelSearch> list = studentsList
+          .map((data) => StudentModelSearch.fromJson(data))
+          .toList();
+
+      __students = list;
+      notifyListeners();
+    } catch (e) {
+      print(e);
+      throw e;
+    }
+    notifyListeners();
   }
 
   void setSingleStudent(Student4ModelSearch st) {
@@ -476,6 +558,112 @@ class StudentManager extends ChangeNotifier {
       // _loading = false;
       // _error = true;
       notifyListeners();
+    }
+
+    notifyListeners();
+  }
+
+  Future<void> getStudentAbs(String lessid) async {
+    // print(_pageNumber);
+    var url = Uri.https('development.mrsaidmostafa.com',
+        '/api/absence/appointments/${lessid}', {
+      "page": _pageNumber.toString(),
+    });
+    print(url);
+
+    try {
+      var response = await http.get(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer $_authToken'
+        },
+      );
+
+      final responseData = json.decode(response.body);
+
+      List<dynamic> studentsList = responseData['data'];
+      // print(studentsList[0]['groups']);
+      // print(StudentModelSearch.fromJson(studentsList[0]).code);
+      // __students.add(StudentModelSearch.fromJson(studentsList[0]));
+
+      List<StudentModelSearch> fetchedstudents = studentsList
+          .map((data) => StudentModelSearch.fromJson(data))
+          .toList();
+      _hasMore = fetchedstudents.length == _defaultPerPageCount;
+      _loading = false;
+      _pageNumber = _pageNumber + 1;
+
+      __students.addAll(fetchedstudents);
+    } catch (e) {
+      print(e);
+      _loading = false;
+      _error = true;
+      notifyListeners();
+    }
+
+    notifyListeners();
+  }
+  // Future<String> getStudentAbsNumber(String lessid) async {
+  //   // print(_pageNumber);
+  //   var url = Uri.https('development.mrsaidmostafa.com',
+  //       '/api/absence/appointments/${lessid}', {
+  //     "page": _pageNumber.toString(),
+  //   });
+  //   print(url);
+
+  //   try {
+  //     var response = await http.get(
+  //       url,
+  //       headers: {
+  //         'Accept': 'application/json',
+  //         HttpHeaders.authorizationHeader: 'Bearer $_authToken'
+  //       },
+  //     );
+
+  //     final responseData = json.decode(response.body);
+
+  //     List<dynamic> studentsList = responseData['data'];
+  //     // print(studentsList[0]['groups']);
+  //     // print(StudentModelSearch.fromJson(studentsList[0]).code);
+  //     // __students.add(StudentModelSearch.fromJson(studentsList[0]));
+
+  //     List<StudentModelSearch> fetchedstudents = studentsList
+  //         .map((data) => StudentModelSearch.fromJson(data))
+  //         .toList();
+  //     _hasMore = fetchedstudents.length == _defaultPerPageCount;
+  //     _loading = false;
+  //     _pageNumber = _pageNumber + 1;
+
+  //     __students.addAll(fetchedstudents);
+  //   } catch (e) {
+  //     print(e);
+  //     _loading = false;
+  //     _error = true;
+  //     notifyListeners();
+  //   }
+
+  //   notifyListeners();
+  // }
+
+  Future<void> delete_student(int id) async {
+    var url = Uri.https('development.mrsaidmostafa.com', '/api/students/$id');
+    try {
+      var response = await http.delete(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer $_authToken'
+        },
+      );
+      final responseData = json.decode(response.body);
+      print(responseData);
+      if (responseData['massage'] ==
+          'The group has been deleted successfully.') {
+        __students.removeWhere((e) => e.id == id);
+      }
+    } catch (error) {
+      print(error);
     }
 
     notifyListeners();

@@ -1,4 +1,5 @@
 import 'package:attendance/managers/App_State_manager.dart';
+import 'package:attendance/managers/subject_manager.dart';
 import 'package:attendance/models/teacher.dart';
 import 'package:attendance/navigation/screens.dart';
 import 'package:attendance/screens/Add_teacher/components/Teacher_Form.dart';
@@ -54,6 +55,8 @@ class Add_Teacher_Screeen extends StatelessWidget {
               padding: EdgeInsets.all(8),
               child: InkWell(
                 onTap: () {
+                  // Provider.of<SubjectManager>(context, listen: false)
+                  //     .resetlist();
                   Provider.of<AppStateManager>(context, listen: false)
                       .registerTeacher(false);
                   Provider.of<AppStateManager>(context, listen: false)

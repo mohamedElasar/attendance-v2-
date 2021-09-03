@@ -64,12 +64,6 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
       try {
         await Provider.of<AppointmentManager>(context, listen: false)
             .get_appointmentsshow(widget.mygroup_id!)
-            // .then((value) => Provider.of<AppStateManager>(context, listen: false)
-            //     .goToSingleStudent(
-            //         false,
-            //         Provider.of<StudentManager>(context, listen: false)
-            //             .singleStudent!,
-            //         widget.student_id!))
             .then((_) {
           setState(() {
             _isLoading = false;
@@ -113,8 +107,6 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                   ),
                   child:
                       Wrap(spacing: 10.0, runSpacing: 10.0, children: <Widget>[
-                    // buildChip('الأحد'),
-                    // buildChip('2pm'),
                     buildChip(widget.mygroup!.name!),
                     buildChip(widget.mygroup!.subject!.name!),
                     // buildChip('مجموعة الياسمين 2'),
@@ -157,12 +149,26 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                                   margin: EdgeInsets.symmetric(vertical: 5),
                                   color: colors[Index % colors.length],
                                   child: ListTile(
-                                    // trailing: Text(
-                                    //   appointmgr.appointmentsshow[Index]. ?? '',
-                                    //   style: TextStyle(
-                                    //       color: text_colors[Index % colors.length],
-                                    //       fontFamily: 'GE-light'),
-                                    // ),
+                                    trailing: InkWell(
+                                      onTap: () {
+                                        Provider.of<AppStateManager>(context,
+                                                listen: false)
+                                            .gotosinglelessonabs(
+                                                true,
+                                                appointmgr
+                                                    .appointmentsshow![Index]
+                                                    .id!
+                                                    .toString(),
+                                                appointmgr
+                                                    .appointmentsshow![Index]);
+                                      },
+                                      child: Text(
+                                        'الغياب',
+                                        style: TextStyle(
+                                            fontFamily: 'GE-light',
+                                            color: kbuttonColor1),
+                                      ),
+                                    ),
                                     subtitle: Text(
                                       ' الساعه :   ${appointmgr.appointmentsshow![Index].time!}',
                                       style: TextStyle(
@@ -180,19 +186,6 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                                                   .toString(),
                                               appointmgr
                                                   .appointmentsshow![Index]);
-
-                                      // Navigator.push(
-                                      //     context,
-                                      //     MaterialPageRoute(
-                                      //         builder: (context) =>
-                                      //             Show_Group_Class()));
-                                      // Provider.of<AppStateManager>(context,
-                                      //         listen: false)
-                                      //     .goToSinglegroup(
-                                      //         true,
-                                      //         groupManager.groups[Index].id
-                                      //             .toString(),
-                                      //         groupManager.groups[Index]);
                                     },
                                     title: Text(
                                       'تاريخ الحصه :   ${appointmgr.appointmentsshow![Index].date!}',
@@ -202,35 +195,6 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                                           fontWeight: FontWeight.bold,
                                           fontFamily: 'GE-medium'),
                                     ),
-
-                                    // Padding(
-                                    //   padding: const EdgeInsets.all(8.0),
-                                    //   child: Container(
-                                    //     decoration: BoxDecoration(
-                                    //       borderRadius:
-                                    //           BorderRadius.all(Radius.circular(5)),
-                                    //       border: Border.all(
-                                    //         color: Colors.grey,
-                                    //         width: 0.7,
-                                    //       ),
-                                    //     ),
-                                    //     height: 50,
-                                    //     child: Material(
-                                    //       elevation: 5.0,
-                                    //       borderRadius: BorderRadius.circular(5.0),
-                                    //       color: colors[Index % colors.length],
-                                    //       child: Center(
-                                    //         child: Text(
-                                    //           groupManager.groups[Index].name!,
-                                    //           style: TextStyle(
-                                    //               color: text_colors[
-                                    //                   Index % colors.length],
-                                    //               fontWeight: FontWeight.bold),
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //   ),
-                                    // ),
                                   ),
                                 ),
                               ),

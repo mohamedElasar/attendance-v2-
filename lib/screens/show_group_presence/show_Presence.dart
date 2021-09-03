@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:sqflite/sqflite.dart';
 import 'components/connectivity.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 String path = '';
 //int count_deree = 0;
@@ -278,6 +279,14 @@ class _Show_Group_PresenceState extends State<Show_Group_Presence> {
                       buildChip(widget.mygroup!.teacher!.name!),
                       buildChip('معاد الحصه :  ${widget.mylesson!.time}'),
                       buildChip('تاريخ الحصه :  ${widget.mylesson!.date}'),
+                      buildChip(
+                          'الحضور:  ${widget.mylesson!.students!.length.toString()}'),
+                      InkWell(
+                          onTap: () {
+                            launch(
+                                'https://development.mrsaidmostafa.com/api/exports/students/appointments/${widget.mylesson!.id!}');
+                          },
+                          child: buildChip('تصدير اكسل', link: true)),
                       AppointmentManager.myattend.length > 0
                           ? IconButton(
                               icon: Icon(Icons.refresh),
@@ -505,7 +514,7 @@ class _Show_Group_PresenceState extends State<Show_Group_Presence> {
     ));
   }
 
-  Widget buildChip(text) => Chip(
+  Widget buildChip(text, {link = false}) => Chip(
         labelPadding: EdgeInsets.all(2.0),
         label: Text(
           text,
@@ -514,7 +523,7 @@ class _Show_Group_PresenceState extends State<Show_Group_Presence> {
               fontWeight: FontWeight.bold,
               fontFamily: 'GE-medium'),
         ),
-        backgroundColor: kbuttonColor3,
+        backgroundColor: !link ? kbuttonColor3 : kbackgroundColor2,
         elevation: 6.0,
         shadowColor: Colors.grey[60],
         padding: EdgeInsets.all(8.0),

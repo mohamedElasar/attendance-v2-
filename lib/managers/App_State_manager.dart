@@ -92,6 +92,8 @@ class AppStateManager extends ChangeNotifier {
 
   bool _singlelessonbool = false;
   bool get singlelessonbool => _singlelessonbool;
+  bool _singlelessonabs = false;
+  bool get singlelessonabs => _singlelessonabs;
 
   String _singlelessonid = '';
   String get singlelessonid => _singlelessonid;
@@ -140,6 +142,13 @@ class AppStateManager extends ChangeNotifier {
 
   void registerTeacher(bool value) {
     _teacher_register = value;
+    notifyListeners();
+  }
+
+  void gotosinglelessonabs(bool value, String id, AppointmentModel app) {
+    _singlelessonabs = value;
+    _singlelessonid = id;
+    _singlelesson = app;
     notifyListeners();
   }
 

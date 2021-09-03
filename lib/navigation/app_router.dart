@@ -1,4 +1,5 @@
 import 'package:attendance/managers/App_State_manager.dart';
+import 'package:attendance/managers/Appointment_manager.dart';
 import 'package:attendance/managers/Auth_manager.dart';
 import 'package:attendance/managers/Student_manager.dart';
 import 'package:attendance/managers/cities_manager.dart';
@@ -11,6 +12,7 @@ import 'package:attendance/models/StudentSearchModel.dart';
 import 'package:attendance/models/appointment.dart';
 import 'package:attendance/models/groupmodelsimple.dart';
 import 'package:attendance/models/teacher.dart';
+import 'package:attendance/screens/Absence_show/Absence_Show.dart';
 import 'package:attendance/screens/Add_academic_year/Academic_year.dart';
 import 'package:attendance/screens/Add_assistant/Add_Teacher_Screen.dart';
 import 'package:attendance/screens/Add_group/Add_group_Screen.dart';
@@ -117,6 +119,20 @@ class AppRouter extends RouterDelegate
               lessonid: appStateManager.singlelessonid,
               lesson: appStateManager.getsinglelesson),
         if (authmanager.isLoggedIn &&
+            appStateManager.groupscheck &&
+            appStateManager.singlegroup &&
+            appStateManager.singlelessonabs)
+          Absence_Show.page(
+              less_id: appStateManager.singlelessonid,
+              lesson: appStateManager.getsinglelesson),
+        if (authmanager.isLoggedIn &&
+            appStateManager.groupscheck &&
+            appStateManager.singlegroup &&
+            appStateManager.singlelessonabs &&
+            appStateManager.singleStudent)
+          Single_Student_Screen.page(
+              studentid: appStateManager.studentIdSelected, user: user.center),
+        if (authmanager.isLoggedIn &&
             appStateManager.groupRegister &&
             authmanager.type != user.teacher)
           Add_group_screen.page(),
@@ -212,6 +228,9 @@ class AppRouter extends RouterDelegate
     }
     if (route.settings.name == Attendance_Screens.teachers_show) {
       appStateManager.checkteachers(false);
+    }
+    if (route.settings.name == Attendance_Screens.abscence_show) {
+      appStateManager.gotosinglelessonabs(false, '', AppointmentModel());
     }
     if (route.settings.name == Attendance_Screens.groupcheck) {
       // print('object');

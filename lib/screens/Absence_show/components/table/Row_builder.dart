@@ -1,27 +1,26 @@
 import 'package:attendance/managers/App_State_manager.dart';
 import 'package:attendance/managers/Student_manager.dart';
 import 'package:attendance/models/StudentSearchModel.dart';
-import 'package:attendance/models/student.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
 class Rows_Builder extends StatefulWidget {
-  final groupId;
+  final String? lessonid;
   final size;
 
-  Rows_Builder({Key? key, this.size, this.groupId}) : super(key: key);
+  Rows_Builder({Key? key, this.size, this.lessonid}) : super(key: key);
 
   @override
   _Rows_BuilderState createState() => _Rows_BuilderState();
 }
 
 class _Rows_BuilderState extends State<Rows_Builder> {
-  void _tapFnc(StudentModelSearch student, String id) {
-    Provider.of<AppStateManager>(context, listen: false)
-        .goToSingleStudent(true, student, id);
-  }
+  // void _tapFnc(StudentModelSearch student, String id) {
+  //   Provider.of<AppStateManager>(context, listen: false)
+  //       .goToSingleStudent(true, student, id);
+  // }
 
   bool _isLoading = true;
   ScrollController _sc = new ScrollController();
@@ -34,7 +33,7 @@ class _Rows_BuilderState extends State<Rows_Builder> {
 
       try {
         await Provider.of<StudentManager>(context, listen: false)
-            .getMoreDatafiltered(widget.groupId)
+            .getStudentAbs(widget.lessonid.toString())
             .then((_) {
           setState(() {
             _isLoading = false;
@@ -48,7 +47,7 @@ class _Rows_BuilderState extends State<Rows_Builder> {
       _sc.addListener(() {
         if (_sc.position.pixels == _sc.position.maxScrollExtent) {
           Provider.of<StudentManager>(context, listen: false)
-              .getMoreDatafiltered(widget.groupId);
+              .getStudentAbs(widget.lessonid!);
         }
       });
     });
@@ -59,82 +58,6 @@ class _Rows_BuilderState extends State<Rows_Builder> {
     // TODO: implement dispose
     super.dispose();
     _sc.dispose();
-  }
-
-  void _showErrorDialog(String message, String title, int id) {
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          title,
-          style: TextStyle(fontFamily: 'GE-Bold'),
-        ),
-        content: Text(
-          message,
-          style: TextStyle(fontFamily: 'AraHamah1964R-Bold'),
-        ),
-        actions: <Widget>[
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Center(
-                  child: TextButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            Colors.red.withOpacity(.6))),
-                    // color: kbackgroundColor1,
-                    child: Text(
-                      'نعم',
-                      style: TextStyle(
-                          fontFamily: 'GE-medium', color: Colors.black),
-                    ),
-                    onPressed: () async {
-                      setState(() {
-                        _isLoading = true;
-                      });
-                      Navigator.of(ctx).pop();
-
-                      await Provider.of<StudentManager>(context, listen: false)
-                          .delete_student(id)
-                          .then((value) => Provider.of<StudentManager>(context,
-                                  listen: false)
-                              .resetlist())
-                          .then((value) => Provider.of<StudentManager>(context,
-                                  listen: false)
-                              .getMoreDatafiltered(widget.groupId))
-                          .then((_) {
-                        setState(() {
-                          _isLoading = false;
-                        });
-                      });
-                    },
-                  ),
-                ),
-                Center(
-                  child: TextButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            Colors.green.withOpacity(.6))),
-                    // color: kbackgroundColor1,
-                    child: Text(
-                      'لا',
-                      style: TextStyle(
-                          fontFamily: 'GE-medium', color: Colors.black),
-                    ),
-                    onPressed: () {
-                      setState(() {});
-                      Navigator.of(ctx).pop();
-                    },
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
   }
 
   @override
@@ -163,37 +86,34 @@ class _Rows_BuilderState extends State<Rows_Builder> {
                     child: CircularProgressIndicator(),
                   );
                 }
-                // if (studentmanager.isloading) {
-                //   return Center(
-                //     child: CircularProgressIndicator(),
-                //   );
-                // }
+
                 return ListView.builder(
                   controller: _sc,
                   itemCount: studentmanager.students.length,
                   itemBuilder: (BuildContext context, int index) {
                     return GestureDetector(
-                      onDoubleTap: () {
-                        _showErrorDialog('تاكيد مسح الطالب ', 'مسح الطالب ',
-                            studentmanager.students[index].id!);
+                        child: TABLE_ROW(
+                      callfnc: () => launch(
+                          "tel://${studentmanager.students[index].parentPhone.toString()}"),
+                      size: widget.size,
+                      name: studentmanager.students[index].name!,
+                      id: studentmanager.students[index].code?.name ??
+                          ''.toString(),
+                      mobile: studentmanager.students[index].parentPhone!,
+                      check: studentmanager.students[index].choosen!,
+                      myfnc: () {
+                        studentmanager.students[index].choosen =
+                            !studentmanager.students[index].choosen!;
+                        setState(() {});
                       },
-                      child: TABLE_ROW(
-                          callfnc: () => launch(
-                              "tel://${studentmanager.students[index].phone.toString()}"),
-                          size: widget.size,
-                          name: studentmanager.students[index].name!,
-                          id: studentmanager.students[index].code?.name ??
-                              ''.toString(),
-                          mobile: studentmanager.students[index].phone!,
-                          check: studentmanager.students[index].choosen!,
-                          myfnc: () {
-                            studentmanager.students[index].choosen =
-                                !studentmanager.students[index].choosen!;
-                            setState(() {});
-                          },
-                          tapFnc: () => _tapFnc(studentmanager.students[index],
-                              studentmanager.students[index].id.toString())),
-                    );
+                      tapFnc: () => {
+                        Provider.of<AppStateManager>(context, listen: false)
+                            .goToSingleStudent(
+                                true,
+                                studentmanager.students[index],
+                                studentmanager.students[index].id.toString())
+                      },
+                    ));
                   },
                 );
               }));

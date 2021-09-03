@@ -76,7 +76,18 @@ class _Single_Student_ScreenState extends State<Single_Student_Screen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        if (widget.myuser == user.center) Container(),
+                        if (widget.myuser == user.center)
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Icon(
+                                Icons.arrow_back,
+                              ),
+                            ),
+                          ),
                         if (widget.myuser == user.student)
                           Builder(
                             builder: (context) => InkWell(
@@ -100,21 +111,7 @@ class _Single_Student_ScreenState extends State<Single_Student_Screen> {
                               fontWeight: FontWeight.bold,
                               fontFamily: 'AraHamah1964B-Bold'),
                         ),
-                        if (widget.myuser == user.center)
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: RotatedBox(
-                                quarterTurns: 2,
-                                child: Icon(
-                                  Icons.arrow_back,
-                                ),
-                              ),
-                            ),
-                          ),
+                        if (widget.myuser == user.center) Container(),
                         if (widget.myuser == user.student) Container()
                       ],
                     ),
