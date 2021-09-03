@@ -31,6 +31,7 @@ class Student4ModelSearch {
   Code? code;
   SubjectModelSimple? secLang;
   bool? choosen;
+  String? identification;
   // List<AppointmentModel>? appointments;
 
   Student4ModelSearch({
@@ -58,6 +59,7 @@ class Student4ModelSearch {
     this.secLang,
     // this.appointments,
     this.choosen = false,
+    this.identification,
   });
 
   Student4ModelSearch.fromJson(Map<String, dynamic> json) {
@@ -103,6 +105,7 @@ class Student4ModelSearch {
     studyType = json['study_type'];
     // secondLanguage = json['second_language'];
     discount = json['discount'];
+    identification = json['identification'];
     code = json['code'] != null ? new Code.fromJson(json['code']) : null;
   }
 
@@ -118,6 +121,7 @@ class Student4ModelSearch {
     data['phone'] = this.phone;
     data['school'] = this.school;
     data['note'] = this.note;
+    data['identification'] = this.identification;
     if (this.city != null) {
       data['city_id'] = this.city!.toJson();
     }

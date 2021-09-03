@@ -41,7 +41,9 @@ class Students_Screen extends StatelessWidget {
             Student_Top_Page(size: size, groupId: groupid),
             Consumer<AppStateManager>(
               builder: (builder, appstatemanager, child) => Students_Page_Title(
-                  title: appstatemanager.getGroupSelected.name),
+                title: appstatemanager.getGroupSelected.name,
+                id: appstatemanager.getGroupSelected.id,
+              ),
             ),
             Filter_Container(),
             Expanded(

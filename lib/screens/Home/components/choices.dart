@@ -5,10 +5,13 @@ import 'package:attendance/helper/httpexception.dart';
 import 'package:attendance/managers/App_State_manager.dart';
 import 'package:attendance/managers/Appointment_manager.dart';
 import 'package:attendance/managers/Auth_manager.dart';
+import 'package:attendance/managers/Student_manager.dart';
 import 'package:attendance/managers/group_manager.dart';
 import 'package:attendance/managers/subject_manager.dart';
 import 'package:attendance/managers/teacher_manager.dart';
 import 'package:attendance/managers/year_manager.dart';
+import 'package:attendance/models/Student4SearchModel.dart';
+import 'package:attendance/models/StudentSearchModel.dart';
 import 'package:attendance/models/teacher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +21,7 @@ import 'package:provider/provider.dart';
 
 import '../../../constants.dart';
 import '../Home_Screen.dart';
+import 'package:autocomplete_textfield_ns/autocomplete_textfield_ns.dart';
 
 late String year_id_selected;
 String yearname = 'السنه الدراسيه';
@@ -146,6 +150,8 @@ class _ChoicesState extends State<Choices> {
     super.initState();
   }
 
+  FocusNode focusNode = FocusNode();
+
   bool _loadingscann = false;
   List<String> formatTimeOfDay(TimeOfDay tod) {
     final now = new DateTime.now();
@@ -158,6 +164,7 @@ class _ChoicesState extends State<Choices> {
   String code_from_windows = '';
   String newLessonTime = '';
   String newLessonDate = '';
+  // GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
 
   void _modalBottomSheetMenusubject(BuildContext context) {
     FocusScope.of(context).unfocus();
@@ -782,7 +789,6 @@ class _ChoicesState extends State<Choices> {
           height: 300.0,
           color: Colors.transparent,
           child: Column(
-            // mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
                 height: 40,
@@ -800,85 +806,10 @@ class _ChoicesState extends State<Choices> {
                   ),
                 ),
               ),
-              // Container(
-              //   height: 40,
-              //   width: double.infinity,
-              //   color: Colors.white,
-              //   // decoration: BoxDecoration(
-              //   //   color: kbackgroundColor2,
-              //   // ),
-              //   child: Align(
-              //     alignment: Alignment.bottomRight,
-              //     child: ElevatedButton.icon(
-              //       style: ElevatedButton.styleFrom(primary: kbuttonColor3),
-              //       onPressed: () async {
-              //         Navigator.pop(context);
-
-              //         setState(() {
-              //           _isloadingappointment = true;
-              //           group_level = false;
-              //         });
-              //         try {
-              //           await Provider.of<AppointmentManager>(context,
-              //                   listen: false)
-              //               .add_appointment(
-              //                 group_id_selected,
-              //                 formatTimeOfDay(TimeOfDay.now())[0],
-              //                 formatTimeOfDay(TimeOfDay.now())[1],
-              //               )
-              //               .then((value) => Provider.of<AppointmentManager>(
-              //                       context,
-              //                       listen: false)
-              //                   .get_appointments(group_id_selected))
-              //               .then((value) => setState(() {
-              //                     _isloadingappointment = false;
-              //                     group_level = true;
-              //                   }))
-              //               .then((value) => setState(() {
-              //                     app_id_selected =
-              //                         Provider.of<AppointmentManager>(context,
-              //                                 listen: false)
-              //                             .currentapp!
-              //                             .id
-              //                             .toString();
-              //                     app_name = Provider.of<AppointmentManager>(
-              //                             context,
-              //                             listen: false)
-              //                         .currentapp!
-              //                         .name!;
-              //                   }))
-              //               .then(
-              //                 (_) => ScaffoldMessenger.of(context).showSnackBar(
-              //                   SnackBar(
-              //                     backgroundColor: Colors.black38,
-              //                     content: Text(
-              //                       'تم اضافه الحصه بنجاح',
-              //                       style: TextStyle(fontFamily: 'GE-medium'),
-              //                     ),
-              //                     duration: Duration(seconds: 3),
-              //                   ),
-              //                 ),
-              //               );
-              //         } catch (e) {
-              //           _showErrorDialog('حاول مره اخري ', 'حدث خطأ');
-              //         }
-              //       },
-              //       icon: Icon(Icons.add),
-              //       label: Text(
-              //         'أضف حصه جديده',
-              //         style: TextStyle(
-              //             fontFamily: 'GE-medium', color: Colors.black),
-              //       ),
-              //     ),
-              //   ),
-              // ),
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    // borderRadius: BorderRadius.only(
-                    //     topLeft: Radius.circular(20.0),
-                    //     topRight: Radius.circular(20.0))
                   ),
                   child: Consumer<AppointmentManager>(
                     builder: (_, appointmentmanager, child) {
@@ -963,28 +894,8 @@ class _ChoicesState extends State<Choices> {
                                               code_from_windows = '';
                                             });
                                             Navigator.pop(context);
-                                            // Provider.of<AppStateManager>(context,
-                                            //         listen: false)
-                                            //     .setgroupID(
-                                            //         appointmentmanager
-                                            //             .groups[index].id
-                                            //             .toString(),
-                                            //         appointmentmanager.groups[index]);
-                                            // setState(() {
-                                            //   group_id_selected = appointmentmanager
-                                            //       .groups[index].id
-                                            //       .toString();
-                                            //   group_name = appointmentmanager
-                                            //       .groups[index].name!;
-                                            //   group_level = true;
-                                            // });
-                                            // Provider.of<AppStateManager>(context,
-                                            //         listen: false)
-                                            //     .setHomeOptions(true);
-                                            // Navigator.pop(context);
+                                            focusNode.requestFocus();
                                           },
-                                          //  ' الساعه :   ${appointmentmanager.appointments![index].time!
-                                          // .toString()}'
                                           child: Container(
                                             padding: EdgeInsets.symmetric(
                                                 horizontal: 10),
@@ -1002,21 +913,7 @@ class _ChoicesState extends State<Choices> {
                                                 softWrap: false,
                                               ),
                                             ),
-                                          )
-
-                                          //  ListTile(
-                                          //   title: Text(
-                                          //     ' الساعه :   ${appointmentmanager.appointments![index].time!.toString()}',
-                                          //     style:
-                                          //         TextStyle(fontFamily: 'GE-light'),
-                                          //   ),
-                                          //   trailing: Text(
-                                          //     ' التاريخ :   ${appointmentmanager.appointments![index].date!.toString()}',
-                                          //     style:
-                                          //         TextStyle(fontFamily: 'GE-light'),
-                                          //   ),
-                                          // ),
-                                          ),
+                                          )),
                                       Divider(),
                                     ],
                                   );
@@ -1130,6 +1027,109 @@ class _ChoicesState extends State<Choices> {
         ],
       ),
     );
+  }
+
+  FocusNode fn2 = FocusNode();
+  TextEditingController nameController = TextEditingController();
+  var key = GlobalKey<AutoCompleteTextFieldState<StudentModelSearch>>();
+
+  StudentModelSearch? studentattendbyname;
+  void _showAttendByNameDialogue() {
+    // setState(() {
+    //   _loadingscann == true;
+    // });
+    focusNode.unfocus();
+    fn2.requestFocus();
+    code_from_windows = '';
+    nameController.text = '';
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (ctx) =>
+            Consumer<StudentManager>(builder: (context, stumgr, child) {
+              var aa = stumgr.students;
+              return StatefulBuilder(builder: (context, setState) {
+                return AlertDialog(
+                  title: Text(
+                    'تسجيل الحضور بالاسم',
+                    style: TextStyle(fontFamily: 'GE-Bold'),
+                  ),
+                  content: AutoCompleteTextField<StudentModelSearch>(
+                    textChanged: (text) async {
+                      await stumgr.searchStudentforattend(text);
+                      setState(() {});
+                    },
+                    controller: nameController,
+                    decoration: InputDecoration(
+                        hintText: "اسم الطالب", suffixIcon: Icon(Icons.search)),
+                    itemSubmitted: (item) =>
+                        setState(() => studentattendbyname = item),
+                    key: key,
+                    suggestions: aa,
+                    itemBuilder: (context, suggestion) {
+                      return Padding(
+                          child: ListTile(
+                            title: Text(suggestion.name!),
+                          ),
+                          padding: EdgeInsets.all(8.0));
+                    },
+                    itemSorter: (a, b) => a.name == b.name
+                        ? 0
+                        : a.name! == b.name!
+                            ? -1
+                            : 1,
+                    itemFilter: (suggestion, input) => suggestion.name!
+                        .toLowerCase()
+                        .startsWith(input.toLowerCase()),
+                  ),
+                  // }),
+                  actions: <Widget>[
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          TextButton(
+                            style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all(kbuttonColor2)),
+                            // color: kbackgroundColor1,
+                            child: Text(
+                              'تاكيد',
+                              style: TextStyle(
+                                  fontFamily: 'GE-medium', color: Colors.black),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              print(nameController.text);
+                            },
+                          ),
+                          TextButton(
+                            style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all(Colors.red[200])),
+                            // color: kbackgroundColor1,
+                            child: Text(
+                              'الغاء',
+                              style: TextStyle(
+                                  fontFamily: 'GE-medium', color: Colors.black),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              // try {
+                              //   Provider.of<AppointmentManager>(context, listen: false)
+                              //       .unattendlesson(code, lessonid);
+                              // } catch (e) {
+                              //   _showErrorDialog('تم تسجيل الطالب حضور', 'حدث خطأ');
+                              // }
+                            },
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                );
+              });
+            }));
   }
 
   void _add_lesson(String message, String title) {
@@ -1632,6 +1632,11 @@ class _ChoicesState extends State<Choices> {
             if (!Platform.isWindows)
               Consumer<AppStateManager>(
                 builder: (context, appstatemanager, child) => GestureDetector(
+                  // onDoubleTap: app_name != 'الحصه' && _loadingscann == false
+                  //     ? () {
+                  //         print('object');
+                  //       }
+                  //     : null,
                   onTap: app_name != 'الحصه' && _loadingscann == false
                       ? () async {
                           setState(() {
@@ -1655,16 +1660,6 @@ class _ChoicesState extends State<Choices> {
 
                             if (resp['last_appointment_attend'] == false) {
                               _showAttendConfirmDialog(res, app_id_selected!);
-                              // ScaffoldMessenger.of(context).showSnackBar(
-                              //   SnackBar(
-                              //     backgroundColor: Colors.orange[200],
-                              //     content: Text(
-                              //       ' تم التسجيل بنجاح والحصه السابقه لم يحضرها',
-                              //       style: TextStyle(fontFamily: 'GE-medium'),
-                              //     ),
-                              //     duration: Duration(seconds: 3),
-                              //   ),
-                              // );
                             }
                             if (resp['last_appointment_attend'] == true &&
                                 resp['compensation'] == false) {
@@ -1729,9 +1724,8 @@ class _ChoicesState extends State<Choices> {
               Consumer<AppStateManager>(
                   builder: (context, appstatemanager, child) {
                 String inputK = "";
-                FocusNode focusNode = FocusNode();
                 return RawKeyboardListener(
-                    autofocus: true,
+                    // autofocus: true,
                     focusNode: focusNode,
                     onKey: (RawKeyEvent event) {
                       if (event.runtimeType.toString() == 'RawKeyDownEvent' &&
@@ -1792,6 +1786,12 @@ class _ChoicesState extends State<Choices> {
                     child: Column(
                       children: [
                         InkWell(
+                          // onDoubleTap:
+                          //     app_name != 'الحصه' && _loadingscann == false
+                          //         ? () {
+                          //             _showAttendByNameDialogue();
+                          //           }
+                          //         : null,
                           // focusNode: focusNode,
                           onTap: app_name != 'الحصه' && _loadingscann == false
                               ? enterscaninwindows

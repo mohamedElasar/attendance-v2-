@@ -61,6 +61,82 @@ class _Rows_BuilderState extends State<Rows_Builder> {
     _sc.dispose();
   }
 
+  void _showErrorDialog(String message, String title, int id) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          title,
+          style: TextStyle(fontFamily: 'GE-Bold'),
+        ),
+        content: Text(
+          message,
+          style: TextStyle(fontFamily: 'AraHamah1964R-Bold'),
+        ),
+        actions: <Widget>[
+          Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Center(
+                  child: TextButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Colors.red.withOpacity(.6))),
+                    // color: kbackgroundColor1,
+                    child: Text(
+                      'نعم',
+                      style: TextStyle(
+                          fontFamily: 'GE-medium', color: Colors.black),
+                    ),
+                    onPressed: () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      Navigator.of(ctx).pop();
+
+                      await Provider.of<StudentManager>(context, listen: false)
+                          .delete_student(id)
+                          .then((value) => Provider.of<StudentManager>(context,
+                                  listen: false)
+                              .resetlist())
+                          .then((value) => Provider.of<StudentManager>(context,
+                                  listen: false)
+                              .getMoreDatafiltered(widget.groupId))
+                          .then((_) {
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      });
+                    },
+                  ),
+                ),
+                Center(
+                  child: TextButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Colors.green.withOpacity(.6))),
+                    // color: kbackgroundColor1,
+                    child: Text(
+                      'لا',
+                      style: TextStyle(
+                          fontFamily: 'GE-medium', color: Colors.black),
+                    ),
+                    onPressed: () {
+                      setState(() {});
+                      Navigator.of(ctx).pop();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     print(Provider.of<StudentManager>(context, listen: false).studentsSimple);
@@ -97,6 +173,10 @@ class _Rows_BuilderState extends State<Rows_Builder> {
                   itemCount: studentmanager.students.length,
                   itemBuilder: (BuildContext context, int index) {
                     return GestureDetector(
+                      onDoubleTap: () {
+                        _showErrorDialog('تاكيد مسح الطالب ', 'مسح الطالب ',
+                            studentmanager.students[index].id!);
+                      },
                       child: TABLE_ROW(
                           callfnc: () => launch(
                               "tel://${studentmanager.students[index].phone.toString()}"),

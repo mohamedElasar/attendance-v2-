@@ -56,7 +56,7 @@ class StudentModelSearch {
     choosen = false;
     id = json['id'];
     name = json['name'];
-    email = json['email'];
+    email = json['email'] == null ? '' : json['email'];
     phone = json['phone'];
     school = json['school'];
     note = json['note'];
@@ -70,18 +70,7 @@ class StudentModelSearch {
         (model) => GroupModelSimple.fromJson(model),
       ),
     );
-    // appointments = List<AppointmentModel>.from(
-    //   json['appointments'].map(
-    //     (model) => AppointmentModel.fromJson(model),
-    //   ),
-    // );
 
-    // if (json['groups'] != null) {
-    //   List<GroupModel> groups = [];
-    //   json['groups'].forEach((v) {
-    //     groups.add(new GroupModel.fromJson(v));
-    //   });
-    // }
     parent = json['parent'];
     relationType = json['relation_type'];
     parentPhone = json['parent_phone'];
@@ -90,7 +79,7 @@ class StudentModelSearch {
     studyType = json['study_type'];
     // secondLanguage = json['second_language'];
     discount = json['discount'];
-    code = json['code'] != null ? new Code.fromJson(json['code']) : null;
+    code = json['code'] != '' ? new Code.fromJson(json['code']) : null;
   }
 
   Map<String, dynamic> toJson() {
