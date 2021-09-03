@@ -32,7 +32,10 @@ String? app_id_selected;
 String app_name = 'اختر حصه';
 
 class Choices extends StatefulWidget {
-  const Choices({
+  // static String groupr = group_name;
+  // String get name => group_name;
+
+  Choices({
     Key? key,
     required this.size,
     this.usser,
@@ -40,8 +43,9 @@ class Choices extends StatefulWidget {
   }) : super(key: key);
 
   final Size size;
-  static int my_group = group_id;
-  static String mygroup_name = group_name;
+  // static int my_group = group_id;
+ String mygroup_name = group_name;
+ int my_group = group_id;
 
   final user? usser;
   final TeacherModel? teacher;
@@ -2084,3 +2088,13 @@ class Button_Container extends StatelessWidget {
     );
   }
 }
+
+// class F extends ChangeNotifier {
+//   late String _groupname;
+//   String get name => _groupname;
+//   void g() {
+//     _groupname = group_name;
+//     // late String groupname = group_name;
+//     notifyListeners();
+//   }
+// }

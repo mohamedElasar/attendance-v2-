@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+bool _enabled = true;
+bool _press_enabled = true;
 bool show_student = false;
 Color my_color = Colors.yellow;
 bool added = false;
@@ -24,6 +26,7 @@ var my_student_absence = [];
 String absence_text = 'حالة الحضور';
 bool finished = false;
 bool is_finished = false;
+Size? size;
 
 class Filter_Screen_6 extends StatelessWidget {
   static MaterialPage page() {
@@ -48,7 +51,7 @@ class Filter_Screen_6 extends StatelessWidget {
           child: Column(
             children: [
               Search_top(size: size),
-             
+
               Filters_top(size: size),
               //  SizedBox(
               //   height: 8,
@@ -74,19 +77,30 @@ class Tabel_here extends StatefulWidget {
 
 class _Tabel_hereState extends State<Tabel_here> {
   FocusNode fnode = FocusNode();
+
   // var _isLoading = false;
   void _submit() async {
+    Choices h = new Choices(
+      size: widget.size,
+    );
+    print('submit1');
     setState(() {
       _isLoading = true;
     });
-    try {
+    // try {
       setState(() {
         Group_Id;
       });
+      print('submit2');
+      print(my_lesson_id);
+      print(my_student_absence[0]);
+      print(h.my_group);
+
       await Provider.of<GroupManager>(context, listen: false)
-          .add_compare(my_lesson_id, my_student_absence, Choices.my_group)
+          .add_compare(my_lesson_id, my_student_absence, h.my_group)
           .then((_) {
             result = '';
+            print('submit3');
             setState(() {
               // sent = true;
             });
@@ -106,32 +120,32 @@ class _Tabel_hereState extends State<Tabel_here> {
               ),
             ),
           );
-    } on HttpException catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.green[300],
-          content: Text(
-            'لا يوجد طلاب',
-            style: TextStyle(fontFamily: 'GE-medium'),
-          ),
-          duration: Duration(seconds: 3),
-        ),
-      );
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red[400],
-          content: Text(
-            'لا يوجد طلاب',
-            style: TextStyle(fontFamily: 'GE-medium'),
-          ),
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
-    setState(() {
-      _isLoading = false;
-    });
+    // } on HttpException catch (error) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       backgroundColor: Colors.green[300],
+    //       content: Text(
+    //         'لا يوجد طلاب/',
+    //         style: TextStyle(fontFamily: 'GE-medium'),
+    //       ),
+    //       duration: Duration(seconds: 3),
+    //     ),
+    //   );
+    // } catch (error) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       backgroundColor: Colors.red[400],
+    //       content: Text(
+    //         'لا يوجد طلاب]',
+    //         style: TextStyle(fontFamily: 'GE-medium'),
+    //       ),
+    //       duration: Duration(seconds: 3),
+    //     ),
+    //   );
+    // }
+    // setState(() {
+    //   _isLoading = false;
+    // });
   }
 
   Color mycolor = kbuttonColor2;
@@ -164,12 +178,14 @@ class _Tabel_hereState extends State<Tabel_here> {
   @override
   void initState() {
     super.initState();
-
+    Choices h = new Choices(
+      size: widget.size,
+    );
     Future.delayed(Duration.zero, () async {
       //  Provider.of<SubjectManager>(context, listen: false).resetlist();
       //try {
       await Provider.of<GroupManager>(context, listen: false)
-          .get_group_students(Choices.my_group)
+          .get_group_students(h.my_group)
           .then((value) => {
                 // print('valueeeeeeeeeeeeeee');
                 // print(value);
@@ -205,7 +221,7 @@ class _Tabel_hereState extends State<Tabel_here> {
                             children: [
                               Container(
                                 width: widget.size.width * .3,
-                                height: widget.size.height * .25,
+                                height: widget.size.height * .232,
                                 child: Center(
                                   child: Container(
                                     height: 30,
@@ -222,9 +238,12 @@ class _Tabel_hereState extends State<Tabel_here> {
                                             if (my_lesson_id.isNotEmpty &&
                                                 added == true) {
                                               _submit();
-
+//   _enabled = true;
+//    _press_enabled = true;
+//     finished = false;
+//  is_finished = false;
                                               show_student = true;
-                                              finished = true;
+                                              // finished = true;
                                               print(
                                                   'before my  my_lesson_iddddddddddddd');
                                               print(my_lesson_id);
@@ -233,12 +252,20 @@ class _Tabel_hereState extends State<Tabel_here> {
 
                                               // is_clicked = false;
                                               // is_clicked_absence = false;
-                                              setState(() {
-                                                finished = true;
-                                                is_finished = true;
-                                                //             my_color= kbuttonColor2;
-                                                //               is_clicked = false;
-                                              });
+                                              // setState(() {
+                                              /////////
+                                              // finished = true;
+                                              // is_finished = true;
+                                              /////////////
+                                              // is_clicked_absence == true;
+                                              is_finished == false;
+                                              is_clicked == true;
+                                              finished == false;
+                                               _enabled = true;
+                                               _press_enabled = true;
+                                              //             my_color= kbuttonColor2;
+                                              //               is_clicked = false;
+                                              // });
 
                                               print(
                                                   'after my  my_lesson_iddddddddddddd');
@@ -346,12 +373,8 @@ class _Tabel_hereState extends State<Tabel_here> {
                                                               .students_compare!
                                                               .length;
                                                       i++)
-                                                    buildname(
-                                                        widget.size,
-                                                        appmgr
-                                                            .students_compare![
-                                                                i]
-                                                            .name!)
+                                                    buildname(widget.size,
+                                                        ' ${appmgr.students_compare![i].name}')
                                                 ],
                                               )))
                                 //             : SizedBox())))
@@ -634,6 +657,23 @@ class _Tabel_hereState extends State<Tabel_here> {
     );
   }
 
+  // Container build_icon_close(double height) {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       border: Border.all(color: Colors.black),
+  //     ),
+  //     width: width,
+  //     height: height,
+  //     child: Center(
+  //       child: Icon(
+  //         Icons.close,
+  //         color: Colors.red,
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Container build_icon(double height) {
     return Container(
       decoration: BoxDecoration(
@@ -652,8 +692,11 @@ class _Tabel_hereState extends State<Tabel_here> {
   }
 }
 
-////////////////////////
 
+
+
+
+////////////////////////
 class MyListItem extends StatefulWidget {
   GroupManager appmgr;
   @required
@@ -741,8 +784,7 @@ class _MyListItemState extends State<MyListItem> {
   //     mycolor == Colors.green;
   //   });
   // }
-  bool _enabled = true;
-  bool _press_enabled = true;
+
 // void _onTap () {
 //   setState(() {
 // _enabled = false;
@@ -813,7 +855,7 @@ class _MyListItemState extends State<MyListItem> {
                 ? null
                 : () {
                     // _onTap();
-                   // _onSelected(widget.index);
+                    _onSelected(widget.index);
                     print('indexxxxxxxxxxx');
                     print(widget.index);
                     print('_selectedIndexXXX');
@@ -1054,6 +1096,9 @@ class _MyListItemState extends State<MyListItem> {
           ),
           for (var i = 0; i < widget.appmgr.students_compare!.length; i++)
             build_icon(40, is_clicked ? true : false),
+
+            // for (var i = 0; i < widget.appmgr.students_compare!.length; i++)
+            // build_icon_close(40, is_clicked_absence ? true : false),
           // build_icon(40),
           // build_icon(40),
           // build_icon(40),
@@ -1168,3 +1213,22 @@ Container build_icon(double height, bool add) {
     ),
   );
 }
+
+
+// Container build_icon_close(double height, bool add) {
+//   return Container(
+//     decoration: BoxDecoration(
+//       color: Colors.white,
+//       border: Border.all(color: Colors.black),
+//     ),
+//     width: width,
+//     height: height,
+//     child: Center(
+//       child: IconButton(
+//         onPressed: () {},
+//         icon: add == true ? Icon(Icons.close) : Icon(null),
+//         color: Colors.red,
+//       ),
+//     ),
+//   );
+// }

@@ -34,8 +34,9 @@ class GroupManager extends ChangeNotifier {
   bool _error = false;
   bool _loading = true;
   final int _defaultGroupsPerPageCount = 15;
-
-  Future<void> add_compare(lesson__id, student_absence, int? url) async {
+// var lesson__id = [];
+// var student_absence = [];
+  Future<void> add_compare(var lesson__id, var student_absence, int url) async {
     try {
       Dio dio = Dio();
       String urld =
@@ -46,7 +47,7 @@ class GroupManager extends ChangeNotifier {
         "appointments": [
           // {"appointment_id": lesson__id[i], "case": "attend"},
           for (var i = 0; i < lesson__id.length; i++)
-            {"appointment_id": lesson__id[i], "case": student_absence[i]},
+            {"appointment_id": lesson__id[i], "case" : "${student_absence[i]}"},
         ]
       };
 

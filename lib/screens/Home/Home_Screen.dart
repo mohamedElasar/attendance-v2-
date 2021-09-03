@@ -1,5 +1,5 @@
 import 'package:attendance/managers/App_State_manager.dart';
-import 'package:attendance/managers/Auth_manager.dart';
+import 'package:attendance/managers/Auth_manager.dart' as prefix;
 import 'package:attendance/managers/Auth_manager.dart';
 import 'package:attendance/managers/Student_manager.dart';
 import 'package:attendance/models/StudentSearchModel.dart';
