@@ -1793,7 +1793,8 @@ class _ChoicesState extends State<Choices> {
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     try {
-                      Provider.of<AppointmentManager>(this.context, listen: false)
+                      Provider.of<AppointmentManager>(this.context,
+                              listen: false)
                           .unattendlesson(code, lessonid);
                     } catch (e) {
                       _showErrorDialog('تم تسجيل الطالب حضور', 'حدث خطأ');
@@ -1813,103 +1814,103 @@ class _ChoicesState extends State<Choices> {
   var key = GlobalKey<AutoCompleteTextFieldState<StudentModelSearch>>();
 
   StudentModelSearch? studentattendbyname;
-  void _showAttendByNameDialogue() {
-    // setState(() {
-    //   _loadingscann == true;
-    // });
-    focusNode.unfocus();
-    fn2.requestFocus();
-    code_from_windows = '';
-    nameController.text = '';
-    showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (ctx) =>
-            Consumer<StudentManager>(builder: (context, stumgr, child) {
-              var aa = stumgr.students;
-              return StatefulBuilder(builder: (context, setState) {
-                return AlertDialog(
-                  title: Text(
-                    'تسجيل الحضور بالاسم',
-                    style: TextStyle(fontFamily: 'GE-Bold'),
-                  ),
-                  content: AutoCompleteTextField<StudentModelSearch>(
-                    textChanged: (text) async {
-                      await stumgr.searchStudentforattend(text);
-                      setState(() {});
-                    },
-                    controller: nameController,
-                    decoration: InputDecoration(
-                        hintText: "اسم الطالب", suffixIcon: Icon(Icons.search)),
-                    itemSubmitted: (item) =>
-                        setState(() => studentattendbyname = item),
-                    key: key,
-                    suggestions: aa,
-                    itemBuilder: (context, suggestion) {
-                      return Padding(
-                          child: ListTile(
-                            title: Text(suggestion.name!),
-                          ),
-                          padding: EdgeInsets.all(8.0));
-                    },
-                    itemSorter: (a, b) => a.name == b.name
-                        ? 0
-                        : a.name! == b.name!
-                            ? -1
-                            : 1,
-                    itemFilter: (suggestion, input) => suggestion.name!
-                        .toLowerCase()
-                        .startsWith(input.toLowerCase()),
-                  ),
-                  // }),
-                  actions: <Widget>[
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          TextButton(
-                            style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all(kbuttonColor2)),
-                            // color: kbackgroundColor1,
-                            child: Text(
-                              'تاكيد',
-                              style: TextStyle(
-                                  fontFamily: 'GE-medium', color: Colors.black),
-                            ),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              print(nameController.text);
-                            },
-                          ),
-                          TextButton(
-                            style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all(Colors.red[200])),
-                            // color: kbackgroundColor1,
-                            child: Text(
-                              'الغاء',
-                              style: TextStyle(
-                                  fontFamily: 'GE-medium', color: Colors.black),
-                            ),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              // try {
-                              //   Provider.of<AppointmentManager>(context, listen: false)
-                              //       .unattendlesson(code, lessonid);
-                              // } catch (e) {
-                              //   _showErrorDialog('تم تسجيل الطالب حضور', 'حدث خطأ');
-                              // }
-                            },
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                );
-              });
-            }));
-  }
+  // void _showAttendByNameDialogue() {
+  //   // setState(() {
+  //   //   _loadingscann == true;
+  //   // });
+  //   focusNode.unfocus();
+  //   fn2.requestFocus();
+  //   code_from_windows = '';
+  //   nameController.text = '';
+  //   showDialog(
+  //       barrierDismissible: false,
+  //       context: context,
+  //       builder: (ctx) =>
+  //           Consumer<StudentManager>(builder: (context, stumgr, child) {
+  //             var aa = stumgr.students;
+  //             return StatefulBuilder(builder: (context, setState) {
+  //               return AlertDialog(
+  //                 title: Text(
+  //                   'تسجيل الحضور بالاسم',
+  //                   style: TextStyle(fontFamily: 'GE-Bold'),
+  //                 ),
+  //                 content: AutoCompleteTextField<StudentModelSearch>(
+  //                   textChanged: (text) async {
+  //                     await stumgr.searchStudentforattend(text);
+  //                     setState(() {});
+  //                   },
+  //                   controller: nameController,
+  //                   decoration: InputDecoration(
+  //                       hintText: "اسم الطالب", suffixIcon: Icon(Icons.search)),
+  //                   itemSubmitted: (item) =>
+  //                       setState(() => studentattendbyname = item),
+  //                   key: key,
+  //                   suggestions: aa,
+  //                   itemBuilder: (context, suggestion) {
+  //                     return Padding(
+  //                         child: ListTile(
+  //                           title: Text(suggestion.name!),
+  //                         ),
+  //                         padding: EdgeInsets.all(8.0));
+  //                   },
+  //                   itemSorter: (a, b) => a.name == b.name
+  //                       ? 0
+  //                       : a.name! == b.name!
+  //                           ? -1
+  //                           : 1,
+  //                   itemFilter: (suggestion, input) => suggestion.name!
+  //                       .toLowerCase()
+  //                       .startsWith(input.toLowerCase()),
+  //                 ),
+  //                 // }),
+  //                 actions: <Widget>[
+  //                   Center(
+  //                     child: Row(
+  //                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                       children: [
+  //                         TextButton(
+  //                           style: ButtonStyle(
+  //                               backgroundColor:
+  //                                   MaterialStateProperty.all(kbuttonColor2)),
+  //                           // color: kbackgroundColor1,
+  //                           child: Text(
+  //                             'تاكيد',
+  //                             style: TextStyle(
+  //                                 fontFamily: 'GE-medium', color: Colors.black),
+  //                           ),
+  //                           onPressed: () {
+  //                             Navigator.of(context).pop();
+  //                             print(nameController.text);
+  //                           },
+  //                         ),
+  //                         TextButton(
+  //                           style: ButtonStyle(
+  //                               backgroundColor:
+  //                                   MaterialStateProperty.all(Colors.red[200])),
+  //                           // color: kbackgroundColor1,
+  //                           child: Text(
+  //                             'الغاء',
+  //                             style: TextStyle(
+  //                                 fontFamily: 'GE-medium', color: Colors.black),
+  //                           ),
+  //                           onPressed: () {
+  //                             Navigator.of(context).pop();
+  //                             // try {
+  //                             //   Provider.of<AppointmentManager>(context, listen: false)
+  //                             //       .unattendlesson(code, lessonid);
+  //                             // } catch (e) {
+  //                             //   _showErrorDialog('تم تسجيل الطالب حضور', 'حدث خطأ');
+  //                             // }
+  //                           },
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   )
+  //                 ],
+  //               );
+  //             });
+  //           }));
+  // }
 
   void _add_lesson(String message, String title) {
     // final format = TimeOfDayFormat('hh:mm'); //"6:00 AM"
@@ -2568,47 +2569,6 @@ class _ChoicesState extends State<Choices> {
                                 content: Text(
                                   ' تم التسجيل بنجاح',
                                   style: TextStyle(fontFamily: 'GE-medium'),
-              Consumer<AppStateManager>(
-                builder: (context, appstatemanager, child) => GestureDetector(
-                  // onDoubleTap: app_name != 'الحصه' && _loadingscann == false
-                  //     ? () {
-                  //         print('object');
-                  //       }
-                  //     : null,
-                  onTap: app_name != 'الحصه' && _loadingscann == false
-                      ? () async {
-                          setState(() {
-                            _loadingscann = true;
-                          });
-                          // String res = await FlutterBarcodeScanner.scanBarcode(
-                          //     '#ff6666', 'Cancel', true, ScanMode.BARCODE);
-                          try {
-                            String res =
-                                await FlutterBarcodeScanner.scanBarcode(
-                                    '#ff6666',
-                                    'Cancel',
-                                    true,
-                                    ScanMode.BARCODE);
-
-                            print(res);
-                            dynamic resp =
-                                await Provider.of<AppointmentManager>(context,
-                                        listen: false)
-                                    .attendlesson(res, app_id_selected!);
-
-                            if (resp['last_appointment_attend'] == false) {
-                              _showAttendConfirmDialog(res, app_id_selected!);
-                            }
-                            if (resp['last_appointment_attend'] == true &&
-                                resp['compensation'] == false) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.green[300],
-                                  content: Text(
-                                    ' تم التسجيل بنجاح',
-                                    style: TextStyle(fontFamily: 'GE-medium'),
-                                  ),
-                                  duration: Duration(seconds: 3),
                                 ),
                                 duration: Duration(seconds: 3),
                               ),
@@ -2659,7 +2619,6 @@ class _ChoicesState extends State<Choices> {
                   active: app_name != 'الحصه' && _loadingscann == false,
                 ),
               ),
-            // ),
             if (Platform.isWindows)
               Consumer<AppStateManager>(
                   builder: (context, appstatemanager, child) {
