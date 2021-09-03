@@ -1,6 +1,10 @@
 // import 'dart:html';
 import 'dart:io';
 
+import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
+import 'package:attendance/constants.dart';
 import 'package:attendance/helper/httpexception.dart';
 import 'package:attendance/managers/App_State_manager.dart';
 import 'package:attendance/managers/Appointment_manager.dart';
@@ -10,15 +14,64 @@ import 'package:attendance/managers/subject_manager.dart';
 import 'package:attendance/managers/teacher_manager.dart';
 import 'package:attendance/managers/year_manager.dart';
 import 'package:attendance/models/teacher.dart';
+import 'package:attendance/screens/Home/Home_Screen.dart';
+import 'package:attendance/screens/Home/components/code_data.dart';
+import 'package:attendance/screens/Home/components/home_data.dart';
+import 'package:attendance/screens/Home/components/home_repository.dart';
+import 'package:attendance/screens/Home/components/init.dart';
+// import 'package:connectivity/connectivity.dart';
+// import 'package:moor/moor.dart' as prefix;
+// import 'package:sqflite_common/sqlite_api.dart';
+// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+// part 'example.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
+// import 'package:sqlite3/sqlite3.dart' as prefix;
+// import 'package:path/path.dart';
 import 'package:provider/provider.dart';
+//  import 'package:sqflite/sqflite.dart';
 
-import '../../../constants.dart';
-import '../Home_Screen.dart';
+// import 'package:sqflite_common/sqlite_api.dart';
+// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
+import 'package:sembast/sembast.dart';
+import 'package:sembast/sembast_io.dart';
+// import 'package:data_connection_checker/data_connection_checker.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:sembast/utils/sembast_import_export.dart';
 
+// import '../../../constants.dart';
+// import '../Home_Screen.dart';
+// import 'code_data.dart';
+// import 'home_data.dart';
+bool record_attend = false;
+List attended_code = [];
+bool is_ok = false;
+List<HomeData> home_data = [];
+List<CodeData> code_data = [];
+List teacher_no_dublicate = [];
+List group_codes = [];
+List<String> group_id_list = [];
+List<String> class_id_list = [];
+List group_code_no_dublicate = [];
+List class_no_dublicate = [];
+List home_no_dublicate = [];
+List group_no_dublicate = [];
+List subject_no_dublicate = [];
+bool no_internet = false;
+List my_year_list = [];
+List my_appointment_list = [];
+List my_teacher_list = [];
+List my_group_list = [];
+List my_subject_list = [];
+String mygroup_id = '';
+List myclass_id = [];
+String path = '';
 late String year_id_selected;
 String yearname = 'السنه الدراسيه';
 late String subjectId_selected;
@@ -44,8 +97,8 @@ class Choices extends StatefulWidget {
 
   final Size size;
   // static int my_group = group_id;
- String mygroup_name = group_name;
- int my_group = group_id;
+  String mygroup_name = group_name;
+  int my_group = group_id;
 
   final user? usser;
   final TeacherModel? teacher;
@@ -67,6 +120,38 @@ class Choices extends StatefulWidget {
 late String scanResult_code;
 
 class _ChoicesState extends State<Choices> {
+  final Future _init = Init.initialize();
+  HomeDataRepository _dataRepository = GetIt.I.get();
+  // CodeDataRepository _codeRepository = GetIt.I.get();
+  List<HomeData> _homedata = [];
+  List<CodeData> _codedata = [];
+  // static late ConnectivityResult _connectionStatus;
+  // Connectivity? connectivity;
+  // StreamSubscription<ConnectivityResult>? subscription;
+  bool check_connectivity(context) {
+    setState(() {
+      Provider.of<InternetConnectionStatus>(context);
+    });
+    if (Provider.of<InternetConnectionStatus>(context) ==
+        InternetConnectionStatus.disconnected) {
+      return false;
+      //print('no interrrnet');
+    } else {
+      // print('yes interrrnet');
+      return true;
+    }
+
+    // var connectivityResult = await (Connectivity().checkConnectivity());
+    // if (connectivityResult == ConnectivityResult.wifi) {
+    //   return true;
+    // } else {
+    //   setState(() {
+    //     no_internet = true;
+    //   });
+    //   return false;
+    // }
+  }
+
   ScrollController _sc1 = new ScrollController();
   ScrollController _sc2 = new ScrollController();
   ScrollController _sc3 = new ScrollController();
@@ -87,6 +172,77 @@ class _ChoicesState extends State<Choices> {
   bool _scanloading = false;
   bool _isinit = true;
 
+  _loadData() async {
+    //    for (var i = 0; i < home_data.length;i++) {
+    //   _deleteData(home_data[i].id!);
+    // }
+    home_data = await _dataRepository.getAllHomeData();
+    setState(() => _homedata = home_data);
+    print('hooooooooooooooooooome');
+    print(home_data);
+  }
+
+  _loadCodeData() async {
+    code_data = await _dataRepository.getAllCodeData();
+    setState(() => _codedata = code_data);
+
+    // for (var i = 0; i < code_data.length; i++) {
+    //   _deleteCode(code_data[i].id!);
+    //   // print('coooooooode');
+    //   // print(code_data[i].groupid);
+    //   // print(code_data[i].code);
+    // }
+  }
+
+  _addCodeData(String _code, String _groupid) async {
+    //  for (var i = 0; i < code_data.length; i++) {
+    //   _deleteCode(code_data[i].id!);
+    //   // print('coooooooode');
+    //   // print(code_data[i].groupid);
+    //   // print(code_data[i].code);
+    // }
+    final code = "$_code";
+    final groupid = "$_groupid";
+
+    final newCodeData = CodeData(code: code, groupid: groupid);
+    // for (var i = 0; i < code_data.length; i++) {
+    // if(code_data[i].code==code)
+    await _dataRepository.insert(newCodeData);
+  }
+
+  _addData(String _year, String _subject, String _teacher, String _groupname,
+      String _classname, String _groupid, String _classid) async {
+    //        for (var i = 0; i < home_data.length;i++) {
+    //   _deleteData(home_data[i].id!);
+    // }
+    final year = "$_year";
+    final subject = "$_subject";
+    final teacher = "$_teacher";
+    final groupname = "$_groupname";
+    final classname = "$_classname";
+    final groupid = "$_groupid";
+    final classid = "$_classid";
+    final newHomeData = HomeData(
+        year: year,
+        subject: subject,
+        teacher: teacher,
+        groupname: groupname,
+        classname: classname,
+        groupid: groupid,
+        classid: classid);
+    await _dataRepository.insertHomeData(newHomeData);
+  }
+
+  _deleteData(int id) async {
+    await _dataRepository.deleteHomeData(id);
+    _loadData();
+  }
+
+  _deleteCode(int id) async {
+    await _dataRepository.deleteCodeData(id);
+    _loadCodeData();
+  }
+
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
@@ -99,13 +255,13 @@ class _ChoicesState extends State<Choices> {
       }
       group_name = 'المجموعه';
       app_name = 'الحصه';
-      Provider.of<GroupManager>(context, listen: false).resetlist();
-      Provider.of<TeacherManager>(context, listen: false).resetlist();
+      Provider.of<GroupManager>(this.context, listen: false).resetlist();
+      Provider.of<TeacherManager>(this.context, listen: false).resetlist();
       // Provider.of<YearManager>(context, listen: false).resetlist();
-      Provider.of<SubjectManager>(context, listen: false).resetlist();
-      Provider.of<YearManager>(context, listen: false).resetlist();
+      Provider.of<SubjectManager>(this.context, listen: false).resetlist();
+      Provider.of<YearManager>(this.context, listen: false).resetlist();
       try {
-        await Provider.of<YearManager>(context, listen: false)
+        await Provider.of<YearManager>(this.context, listen: false)
             .getMoreData()
             .then((value) {
           setState(() {
@@ -119,14 +275,14 @@ class _ChoicesState extends State<Choices> {
     _sc1.addListener(
       () {
         if (_sc1.position.pixels == _sc1.position.maxScrollExtent) {
-          Provider.of<YearManager>(context, listen: false).getMoreData();
+          Provider.of<YearManager>(this.context, listen: false).getMoreData();
         }
       },
     );
     _sc2.addListener(
       () {
         if (_sc2.position.pixels == _sc2.position.maxScrollExtent) {
-          Provider.of<SubjectManager>(context, listen: false)
+          Provider.of<SubjectManager>(this.context, listen: false)
               .getMoreDatafiltered(year_id_selected.toString());
         }
       },
@@ -134,7 +290,7 @@ class _ChoicesState extends State<Choices> {
     _sc3.addListener(
       () {
         if (_sc3.position.pixels == _sc3.position.maxScrollExtent) {
-          Provider.of<TeacherManager>(context, listen: false)
+          Provider.of<TeacherManager>(this.context, listen: false)
               .getMoreDatafiltered(year_id_selected, subjectId_selected);
         }
       },
@@ -142,11 +298,146 @@ class _ChoicesState extends State<Choices> {
     _sc4.addListener(
       () {
         if (_sc4.position.pixels == _sc4.position.maxScrollExtent) {
-          Provider.of<GroupManager>(context, listen: false).getMoreDatafiltered(
-              year_id_selected, subjectId_selected, teacher_id_selected);
+          Provider.of<GroupManager>(this.context, listen: false)
+              .getMoreDatafiltered(
+                  year_id_selected, subjectId_selected, teacher_id_selected);
         }
       },
     );
+    Future.delayed(Duration.zero, () async {
+      Provider.of<GroupManager>(this.context, listen: false).resetlist();
+      try {
+        await Provider.of<GroupManager>(this.context, listen: false)
+            .getMoreGroupsOffline()
+            // .getMoreGroupOffline(55)
+            .then((_) {
+          setState(() {
+            // _isloading = false
+          });
+
+          print('WHATTTTTT THIS GROUP ');
+          for (var i = 0; i < GroupManager.all_groups_offline.length; i++) {
+            //for (var i = 0; i < GroupManager.onegroupoffline.length; i++) {
+            print(GroupManager.all_groups_offline);
+          }
+          for (var i = 0; i < GroupManager.all_groups_offline.length; i++) {
+            //for (var i = 0; i < GroupManager.onegroupoffline.length; i++) {
+            //print(GroupManager.all_groups_offline);
+            // }
+            //for (var i = 0; i < GroupManager.groupsoffline.length; i++) {
+            print('group nameee');
+            // print(GroupManager.groupsoffline[i].id);
+            Future.delayed(Duration.zero, () async {
+              try {
+                // GroupManager group_manager = new GroupManager();
+                await Provider.of<GroupManager>(this.context, listen: false)
+                    .get_all_students_offline(
+                        GroupManager.all_groups_offline[i].id!)
+                    .then((value) {
+                  // print('group name');
+                  print('group nametttttttttttttt');
+                  print(GroupManager.stagesList);
+                  print(GroupManager.stagesList[0]['code']['code']);
+                  print('${GroupManager.all_groups_offline[0].id}');
+                  //print(group_manager.groups);
+                  setState(() {
+                    _isloadingyears = false;
+                  });
+                  print('my coooode');
+                  //print(GroupManager.groupsoffline[i].id!);
+                  for (var k = 0; k < GroupManager.stagesList.length; k++) {
+                    _addCodeData(GroupManager.stagesList[k]['code']['code'],
+                        '${GroupManager.all_groups_offline[i].id}');
+                    // GroupManager.all_groups_offline[k].id
+
+                  }
+                });
+              } catch (e) {}
+            });
+            ////
+
+            ///
+            Future.delayed(Duration.zero, () async {
+              try {
+                //GroupManager group_manager = new GroupManager();
+                await Provider.of<GroupManager>(this.context, listen: false)
+                    .get_group_offline(GroupManager.all_groups_offline[i].id!)
+                    .then((value) {
+                  print('group data  counttttttt');
+                  // print(GroupManager.group_info['appointments'].length);
+                  setState(() {
+                    _isloadingyears = false;
+                  });
+                  if (GroupManager.group_info.isNotEmpty) {
+                    for (var j = 0; j < GroupManager.group_info.length; j++) {
+                      //   // add_record(
+                      //   //   GroupManager.groupsoffline[i].year!.name!,
+                      //   //   GroupManager.groupsoffline[i].subject!.name!,
+                      //   //   GroupManager.groupsoffline[i].teacher!.name!,
+                      //   //   GroupManager.groupsoffline[i].name!,
+                      //   //   GroupManager.group_info['appointments'][j]['name'],
+                      //   // );
+
+                      print('ggggggggggg');
+                      // print(GroupManager.group_info[i].appointments![0].name);
+                      // print(GroupManager.group_info[9].appointments![0]['id']);
+                      _addData(
+                        GroupManager.all_groups_offline[i].year!.name!,
+                        GroupManager.all_groups_offline[i].subject!.name!,
+                        GroupManager.all_groups_offline[i].teacher!.name!,
+                        GroupManager.all_groups_offline[i].name!,
+
+                        GroupManager.group_info[j]['name'],
+                        ' ${GroupManager.all_groups_offline[i].id}',
+                        '${GroupManager.group_info[j]['id']}',
+                        //   'fwhat','ii','tt','rrt',
+                        //   'uu','rr'
+                        //  ,'jj'
+                      );
+                    }
+                  }
+                });
+                print('NO OF CLASSES');
+                // print(GroupManager.group_info[0]['appointments'].length);
+                print('whatttty');
+                // print(GroupManager.groupsoffline[0].year!.name!);
+                // print(GroupManager.groupsoffline[0].subject!.name!);
+                // print(GroupManager.groupsoffline[0].teacher!.name!);
+                // print(GroupManager.groupsoffline[0].name!);
+                // print(GroupManager.group_info);
+                // print(' ${GroupManager.groupsoffline[0].id}');
+                // print(GroupManager.group_info[0]['appointments'][0]['id']);
+
+                // for (var j = 0;
+                //     j < GroupManager.group_info['appointments'].length;
+                //     j++) {
+                // add_record(
+                //   GroupManager.group_info['year']['name'],
+                //   GroupManager.group_info['subject']['name'],
+                //   GroupManager.group_info['teacher']['name'],
+                //   GroupManager.group_info['name'],
+                //   GroupManager.group_info['appointments'][0]['name'],
+                // );
+                // }
+
+                // print('group name');
+                // print(await GroupManager.groupsoffline);
+              } catch (e) {}
+            });
+          }
+          print('_homedataaaaaaaaaaaa');
+          print(home_data);
+          print('_homedataaaaaaaaaaaa');
+          ////
+          // }
+        });
+      } catch (e) {}
+      if (!mounted) return;
+    });
+
+    print('WHATTTTTT THIS GROUP ');
+    print(GroupManager.all_groups_offline);
+
     super.initState();
   }
 
@@ -162,6 +453,481 @@ class _ChoicesState extends State<Choices> {
   String code_from_windows = '';
   String newLessonTime = '';
   String newLessonDate = '';
+
+  void _modalBottomSheetMenuyearOffline(BuildContext context) {
+    // _loadCodeData();
+    print('kkkkkkkkkkkkkkkkkkkkkk');
+    _loadData();
+    for (var i = 0; i < home_data.length; i++) {
+      if (!home_no_dublicate.contains(home_data[i].year)) {
+        home_no_dublicate.add(home_data[i].year!);
+
+        print('sqflite codeeeeeeeeeee');
+        print(home_no_dublicate);
+      }
+    }
+
+    //  _loadCodeData();
+    // for (var i = 0; i < home_data.length; i++) {
+    //   if (!home_no_dublicate.contains(home_data[i].year)) {
+    //home_no_dublicate.add(home_data[i].year!);
+    print('sqflite subject');
+    // print(code_data);
+    //   }
+    // }
+    print('sqflite subject');
+    print('_homedata[0].classname');
+    FocusScope.of(context).unfocus();
+
+    showModalBottomSheet(
+        context: context,
+        builder: (builder) {
+          return Container(
+              height: 250.0,
+              color: Colors.transparent,
+              child: Column(children: [
+                Container(
+                  height: 40,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: kbuttonColor3,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'السنه الدراسيه',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'GE-bold',
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20.0),
+                              topRight: Radius.circular(20.0))),
+                      child: ListView.separated(
+                          separatorBuilder: (BuildContext ctxt, int index) =>
+                              Divider(
+                                color: Colors.grey,
+                                height: 2,
+                              ),
+                          itemCount: home_no_dublicate.length,
+                          itemBuilder: (BuildContext ctxt, int index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: GestureDetector(
+                                  onTap: () async {
+                                    Provider.of<SubjectManager>(context,
+                                            listen: false)
+                                        .resetlist();
+                                    setState(() {
+                                      //year_id_selected =
+                                      yearname = home_no_dublicate[index]!;
+                                      year_level = true;
+                                      subject_level = false;
+                                      teacher_level = false;
+                                      group_level = false;
+                                      _isloadingsubjects = true;
+                                      subjectname = 'الماده الدراسيه';
+                                      teachername = widget.usser != user.teacher
+                                          ? 'المدرس'
+                                          : widget.teacher!.name!;
+                                      group_name = 'المجموعه';
+                                      app_name = 'الحصه';
+                                    });
+                                    Navigator.pop(context);
+                                    Provider.of<AppStateManager>(context,
+                                            listen: false)
+                                        .setHomeOptions(false);
+
+                                    print('sqflite subject');
+                                    print('_homedata[0].classname');
+                                    // print(subject_list);
+                                  },
+                                  child: Text(home_no_dublicate[index]!)),
+                            );
+                          })),
+                ),
+              ]));
+        });
+  }
+
+  void _modalBottomSheetMenuSubjectOffline(BuildContext context) {
+    print('yearname');
+    print(yearname);
+    _loadData();
+    subject_no_dublicate = [];
+    for (var i = 0; i < home_data.length; i++) {
+      if (!subject_no_dublicate.contains(home_data[i].subject) &&
+          home_data[i].year == '${yearname}') {
+        subject_no_dublicate.add(home_data[i].subject!);
+        print('sqflite subject');
+        print(home_no_dublicate);
+      }
+    }
+    FocusScope.of(context).unfocus();
+
+    showModalBottomSheet(
+        context: context,
+        builder: (builder) {
+          return Container(
+              height: 250.0,
+              color: Colors.transparent,
+              child: Column(children: [
+                Container(
+                  height: 40,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: kbackgroundColor1,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'المادة الدراسية',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'GE-bold',
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                    child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20.0),
+                          topRight: Radius.circular(20.0))),
+                  child: ListView.separated(
+                      separatorBuilder: (BuildContext ctxt, int index) =>
+                          Divider(
+                            color: Colors.grey,
+                            height: 2,
+                          ),
+                      itemCount: subject_no_dublicate.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: GestureDetector(
+                              onTap: () async {
+                                Provider.of<TeacherManager>(context,
+                                        listen: false)
+                                    .resetlist();
+                                setState(() {
+                                  subjectname = subject_no_dublicate[index];
+                                  year_level = true;
+                                  subject_level = true;
+                                  teacher_level = false;
+                                  group_level = false;
+                                  _isloadingsubjects = false;
+                                  _isloadingteachers = true;
+                                  teachername = 'المدرس';
+
+                                  group_name = 'المجموعه';
+                                  app_name = 'الحصه';
+                                });
+                                Navigator.pop(context);
+                                Provider.of<AppStateManager>(context,
+                                        listen: false)
+                                    .setHomeOptions(false);
+                              },
+                              child: Text(subject_no_dublicate[index])),
+                        );
+                      }),
+                ))
+              ]));
+        });
+  }
+
+  void _modalBottomSheetMenuteacherOffline(BuildContext context) {
+    _loadData();
+    teacher_no_dublicate = [];
+    for (var i = 0; i < home_data.length; i++) {
+      if (!teacher_no_dublicate.contains(home_data[i].teacher) &&
+          home_data[i].subject == '${subjectname}') {
+        teacher_no_dublicate.add(home_data[i].teacher!);
+        print('sqflite subject');
+        print(home_no_dublicate);
+      }
+    }
+    FocusScope.of(context).unfocus();
+
+    showModalBottomSheet(
+        context: context,
+        builder: (builder) {
+          return Container(
+              height: 250.0,
+              color: Colors.transparent,
+              child: Column(children: [
+                Container(
+                  height: 40,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: kbackgroundColor1,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'المدرس',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'GE-bold',
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                    child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20.0),
+                          topRight: Radius.circular(20.0))),
+                  child: ListView.separated(
+                      separatorBuilder: (BuildContext ctxt, int index) =>
+                          Divider(
+                            color: Colors.grey,
+                            height: 2,
+                          ),
+                      itemCount: teacher_no_dublicate.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: GestureDetector(
+                              onTap: () async {
+                                Provider.of<GroupManager>(context,
+                                        listen: false)
+                                    .resetlist();
+                                setState(() {
+                                  //year_id_selected =
+                                  teachername = teacher_no_dublicate[index];
+                                  year_level = true;
+                                  subject_level = true;
+                                  teacher_level = true;
+                                  group_level = false;
+                                  _isloadingsubjects = false;
+                                  _isloadingteachers = false;
+                                  _isloadinggroups = true;
+
+                                  // group_name = widget.usser != user.
+                                  //     ? 'المدرس'
+                                  //     : widget.teacher!.name!;
+                                  group_name = 'المجموعه';
+                                  app_name = 'الحصه';
+                                });
+                                Navigator.pop(context);
+                                Provider.of<AppStateManager>(context,
+                                        listen: false)
+                                    .setHomeOptions(false);
+                              },
+                              child: Text(teacher_no_dublicate[index])),
+                        );
+                      }),
+                ))
+              ]));
+        });
+  }
+
+  void _modalBottomSheetMenugroupOffline(BuildContext context) {
+    _loadData();
+    group_no_dublicate = [];
+    group_id_list = [];
+    for (var i = 0; i < home_data.length; i++) {
+      if (!group_no_dublicate.contains(home_data[i].groupname) &&
+          home_data[i].teacher == '${teachername}') {
+        group_no_dublicate.add(home_data[i].groupname!);
+        group_id_list.add(home_data[i].groupid!);
+        print('sqflite subject');
+        print(group_id_list);
+      }
+    }
+    FocusScope.of(context).unfocus();
+
+    showModalBottomSheet(
+        context: context,
+        builder: (builder) {
+          return Container(
+              height: 250.0,
+              color: Colors.transparent,
+              child: Column(children: [
+                Container(
+                  height: 40,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: kbackgroundColor3,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'المجموعات',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'GE-bold',
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                    child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20.0),
+                          topRight: Radius.circular(20.0))),
+                  child: ListView.separated(
+                      separatorBuilder: (BuildContext ctxt, int index) =>
+                          Divider(
+                            color: Colors.grey,
+                            height: 2,
+                          ),
+                      itemCount: group_no_dublicate.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: GestureDetector(
+                              onTap: () async {
+                                setState(() {
+                                  group_name = group_no_dublicate[index];
+                                  mygroup_id = group_id_list[index].trim();
+                                  year_level = true;
+                                  subject_level = true;
+                                  teacher_level = true;
+                                  group_level = true;
+                                  _isloadingappointment = true;
+                                  _isloadingsubjects = false;
+                                  _isloadingteachers = false;
+                                  _isloadinggroups = false;
+
+                                  app_name = 'الحصه';
+                                });
+                                Navigator.pop(context);
+                                Provider.of<AppStateManager>(context,
+                                        listen: false)
+                                    .setHomeOptions(false);
+                              },
+                              child: Text(group_no_dublicate[index])),
+                        );
+                      }),
+                ))
+              ]));
+        });
+  }
+
+  void _modalBottomSheetMenuappointOffline(BuildContext context) {
+    _loadData();
+    class_no_dublicate = [];
+    for (var i = 0; i < home_data.length; i++) {
+      if (!class_no_dublicate.contains(home_data[i].classname) &&
+          home_data[i].groupname == '${group_name}') {
+        class_no_dublicate.add(home_data[i].classname!);
+        class_id_list.add(home_data[i].classid!);
+        print('sqflite subject');
+        print(home_no_dublicate);
+      }
+    }
+    FocusScope.of(context).unfocus();
+
+    showModalBottomSheet(
+        context: context,
+        builder: (builder) {
+          return Container(
+              height: 250.0,
+              color: Colors.transparent,
+              child: Column(children: [
+                Container(
+                  height: 40,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: kbuttonColor3,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'اختار حصة',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'GE-bold',
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                    child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20.0),
+                          topRight: Radius.circular(20.0))),
+                  child: ListView.separated(
+                      separatorBuilder: (BuildContext ctxt, int index) =>
+                          Divider(
+                            color: Colors.grey,
+                            height: 2,
+                          ),
+                      itemCount: group_no_dublicate.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: GestureDetector(
+                              onTap: () async {
+                                _loadCodeData();
+                                print('isqflite subjecttttttttttttttttttt');
+                                print('kk' + code_data[0].groupid + 'kk');
+                                print('kk' + mygroup_id + 'kk');
+                                // String? h = '';
+                                for (var i = 0; i < code_data.length; i++) {
+                                  // h = code_data[0].groupid;
+                                  // String a = '60';
+                                  // String b = '60';
+                                  // print(a);
+                                  if (code_data[i].groupid == mygroup_id) {
+                                    print('hrrrrrrrrrr');
+                                    print(code_data[i].code);
+                                    group_codes.add(code_data[i].code);
+                                  }
+                                }
+                                print(group_codes);
+
+                                // for (var i = 0; i < code_data.length; i++) {
+                                //   // group_codes = [];
+
+                                //   if (!group_codes
+                                //           .contains(code_data[i].code) &&
+                                //       code_data[i].groupid == mygroup_id) {
+                                //     group_codes.add(code_data[i].code!);
+                                //     print('usqflite subjecttttttttttttttttttt');
+                                //     print(group_codes);
+                                //   }
+                                // }
+                                // print('osqflite subjecttttttttttttttttttt');
+                                // print(group_codes);
+                                setState(() {
+                                  app_name = class_no_dublicate[index];
+                                  if (record_attend = true) {
+                                    myclass_id.add(class_id_list[index].trim());
+                                  }
+
+                                  year_level = true;
+                                  subject_level = true;
+                                  teacher_level = true;
+                                  group_level = true;
+                                  _isloadingappointment = false;
+                                  _isloadingsubjects = false;
+                                  _isloadingteachers = false;
+                                  _isloadinggroups = false;
+                                });
+                                Navigator.pop(context);
+                                Provider.of<AppStateManager>(context,
+                                        listen: false)
+                                    .setHomeOptions(false);
+                              },
+                              child: Text(class_no_dublicate[index])),
+                        );
+                      }),
+                ))
+              ]));
+        });
+  }
 
   void _modalBottomSheetMenusubject(BuildContext context) {
     FocusScope.of(context).unfocus();
@@ -332,9 +1098,15 @@ class _ChoicesState extends State<Choices> {
         });
   }
 
-  void _modalBottomSheetMenuyear(BuildContext context) {
+  void _modalBottomSheetMenuyear(BuildContext context) async {
     FocusScope.of(context).unfocus();
-
+    if (record_attend = true) {
+      //dynamic resp =
+      for (var i = 0; i < attended_code.length; i++) {
+        await Provider.of<AppointmentManager>(context, listen: false)
+            .attendlesson(attended_code[i], myclass_id[i]);
+      }
+    }
     showModalBottomSheet(
         context: context,
         builder: (builder) {
@@ -1046,7 +1818,7 @@ class _ChoicesState extends State<Choices> {
 
   void _showErrorDialog(String message, String title) {
     showDialog(
-      context: context,
+      context: this.context,
       builder: (ctx) => AlertDialog(
         title: Text(
           title,
@@ -1079,7 +1851,7 @@ class _ChoicesState extends State<Choices> {
   void _showAttendConfirmDialog(String code, String lessonid) {
     showDialog(
       barrierDismissible: false,
-      context: context,
+      context: this.context,
       builder: (ctx) => AlertDialog(
         title: Text(
           'تاكيد',
@@ -1121,7 +1893,7 @@ class _ChoicesState extends State<Choices> {
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     try {
-                      Provider.of<AppointmentManager>(context, listen: false)
+                      Provider.of<AppointmentManager>(this.context, listen: false)
                           .unattendlesson(code, lessonid);
                     } catch (e) {
                       _showErrorDialog('تم تسجيل الطالب حضور', 'حدث خطأ');
@@ -1142,7 +1914,7 @@ class _ChoicesState extends State<Choices> {
 
     showDialog(
         barrierDismissible: false,
-        context: context,
+        context: this.context,
         builder: (ctx) => StatefulBuilder(
             builder: (context, setState) => (AlertDialog(
                   title: Text(
@@ -1395,7 +2167,9 @@ class _ChoicesState extends State<Choices> {
                     color: kbuttonColor3,
                     items: years_levels,
                     size: widget.size,
-                    fnc: () => _modalBottomSheetMenuyear(context),
+                    fnc: check_connectivity(context) == true
+                        ? () => _modalBottomSheetMenuyear(context)
+                        : () => _modalBottomSheetMenuyearOffline(context),
                     loading: _isloadingyears,
                     active: true,
                   ),
@@ -1404,7 +2178,9 @@ class _ChoicesState extends State<Choices> {
                     color: kbackgroundColor1,
                     items: subjects,
                     size: widget.size,
-                    fnc: () => _modalBottomSheetMenusubject(context),
+                    fnc: check_connectivity(context) == true
+                        ? () => _modalBottomSheetMenusubject(context)
+                        : () => _modalBottomSheetMenuSubjectOffline(context),
                     active: year_level == true,
                     loading: _isloadingsubjects,
                   ),
@@ -1420,9 +2196,26 @@ class _ChoicesState extends State<Choices> {
                     color: kbackgroundColor1,
                     items: teachers,
                     size: widget.size,
-                    fnc: widget.usser != user.teacher
+                    fnc: check_connectivity(context) == true
                         ? () => _modalBottomSheetMenuteacher(context)
-                        : () {},
+                        : () => _modalBottomSheetMenuteacherOffline(context),
+                    // (){
+                    //   if(widget.usser != user.teacher){
+                    //          return _modalBottomSheetMenuteacher(context);
+                    //   }
+                    //   if(check_connectivity(context) == true){
+                    //           return _modalBottomSheetMenuteacher(context);
+                    //   }
+
+                    //   else{
+                    //      return _modalBottomSheetMenuteacherOffline(context);
+
+                    //   }
+                    // } ,
+                    ////////////
+                    //  widget.usser != user.teacher
+                    //     ? () => _modalBottomSheetMenuteacher(context)
+                    //     : () {},
                     active: subject_level == true,
                     loading: _isloadingteachers,
                   ),
@@ -1431,7 +2224,9 @@ class _ChoicesState extends State<Choices> {
                     color: kbackgroundColor3,
                     items: groups,
                     size: widget.size,
-                    fnc: () => _modalBottomSheetMenugroup(context),
+                    fnc: check_connectivity(context) == true
+                        ? () => _modalBottomSheetMenugroup(context)
+                        : () => _modalBottomSheetMenugroupOffline(context),
                     active: teacher_level == true,
                     loading: _isloadinggroups,
                   ),
@@ -1593,11 +2388,22 @@ class _ChoicesState extends State<Choices> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: InkWell(
-                        onTap: group_level
-                            ? () {
-                                _modalBottomSheetMenuappoint(context);
-                              }
-                            : null,
+                        onTap: check_connectivity(context) == true
+                            //||group_level
+                            ? () => _modalBottomSheetMenuappoint(context)
+                            : () =>
+                                _modalBottomSheetMenuappointOffline(context),
+                        //  group_level
+                        //     ? () {
+                        //        _modalBottomSheetMenuappoint(context);
+                        //       }
+                        //     : null,
+                        /////
+                        // group_level
+                        //     ? () {
+                        //         _modalBottomSheetMenuappoint(context);
+                        //       }
+                        //     : null,
                         child: Consumer<AppointmentManager>(
                           builder: (context, appmanager, child) {
                             return Container(
@@ -1634,101 +2440,182 @@ class _ChoicesState extends State<Choices> {
               ),
             ),
             if (!Platform.isWindows)
-              Consumer<AppStateManager>(
-                builder: (context, appstatemanager, child) => GestureDetector(
-                  onTap: app_name != 'الحصه' && _loadingscann == false
-                      ? () async {
-                          setState(() {
-                            _loadingscann = true;
-                          });
-                          // String res = await FlutterBarcodeScanner.scanBarcode(
-                          //     '#ff6666', 'Cancel', true, ScanMode.BARCODE);
-                          try {
-                            String res =
-                                await FlutterBarcodeScanner.scanBarcode(
-                                    '#ff6666',
-                                    'Cancel',
-                                    true,
-                                    ScanMode.BARCODE);
+              // Consumer<AppStateManager>(
+              //   builder: (context, appstatemanager, child) =>
 
-                            print(res);
-                            dynamic resp =
-                                await Provider.of<AppointmentManager>(context,
-                                        listen: false)
-                                    .attendlesson(res, app_id_selected!);
+              GestureDetector(
+                onTap: check_connectivity(context) == false
+                    // app_name != 'الحصه' && _loadingscann == false
 
-                            if (resp['last_appointment_attend'] == false) {
-                              _showAttendConfirmDialog(res, app_id_selected!);
-                              // ScaffoldMessenger.of(context).showSnackBar(
-                              //   SnackBar(
-                              //     backgroundColor: Colors.orange[200],
-                              //     content: Text(
-                              //       ' تم التسجيل بنجاح والحصه السابقه لم يحضرها',
-                              //       style: TextStyle(fontFamily: 'GE-medium'),
-                              //     ),
-                              //     duration: Duration(seconds: 3),
-                              //   ),
-                              // );
-                            }
-                            if (resp['last_appointment_attend'] == true &&
-                                resp['compensation'] == false) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.green[300],
-                                  content: Text(
-                                    ' تم التسجيل بنجاح',
-                                    style: TextStyle(fontFamily: 'GE-medium'),
-                                  ),
-                                  duration: Duration(seconds: 3),
-                                ),
-                              );
-                            }
-                            if (resp['last_appointment_attend'] == true &&
-                                resp['compensation'] == true) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.blue[200],
-                                  content: Text(
-                                    ' تم التسجيل فى مجموعه تعويضيه',
-                                    style: TextStyle(fontFamily: 'GE-medium'),
-                                  ),
-                                  duration: Duration(seconds: 3),
-                                ),
-                              );
-                            }
-                            // if (resp['last_appointment_attend'] ==
-                            //     'This Group Has not have appointments') {
-                            //   ScaffoldMessenger.of(context).showSnackBar(
-                            //     SnackBar(
-                            //       backgroundColor: Colors.green[300],
-                            //       content: Text(
-                            //         ' تم التسجيل بنجاح',
-                            //         style: TextStyle(fontFamily: 'GE-medium'),
-                            //       ),
-                            //       duration: Duration(seconds: 3),
-                            //     ),
-                            //   );
-                            // }
-                          } on HttpException catch (e) {
-                            _showErrorDialog(e.toString(), 'حدث خطأ');
-                          } catch (e) {
-                            _showErrorDialog('حاول مره اخري', 'حدث خطأ');
+                    ? () async {
+                        print('lllllllllllllhhhhhhhhhhhhhhhhhhhhhhh');
+                        String res = await FlutterBarcodeScanner.scanBarcode(
+                            '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+                        print('llllll' + res + 'yllllllllllllllll');
+                        // if(res =='7565384k' ){
+                        //            ScaffoldMessenger.of(context)
+                        //                       .showSnackBar(
+                        //                     SnackBar(
+                        //                       backgroundColor: Colors.green[300],
+                        //                       content: Text(
+                        //                         ' تم التسجيل بنجاح',
+                        //                         style: TextStyle(
+                        //                             fontFamily: 'GE-medium'),
+                        //                       ),
+                        //                       duration: Duration(seconds: 3),
+                        //                     ),
+                        //                   );
+                        //         }
+                        ///////////////////
+
+                        // _loadCodeData();
+                        //   for (var i = 0; i < code_data.length; i++) {
+                        //    // group_codes = [];
+
+                        //     if (!group_codes.contains(code_data[i].code) &&
+                        //         code_data[i].groupid == '${mygroup_id}') {
+                        //       group_codes.add(code_data[i].code!);
+                        //       print('sqflite subjecttttttttttttttttttt');
+                        //       print(group_codes);
+                        //         }
+                        // print(group_codes);
+                        print('hh' + group_codes[0] + 'hhh');
+                        print('hh' + res + 'hhh');
+                        for (var y = 0; y < group_codes.length; y++) {
+                          if (res == group_codes[y]) {
+                            print('emmmo');
+                            is_ok = true;
+                            record_attend = true;
+                            setState(() {
+                              is_ok = true;
+                              attended_code.add(res);
+                              record_attend = true;
+                            });
+                            break;
+                          } else {
+                            setState(() {
+                              print('noo emmo');
+                              is_ok = false;
+                              record_attend = false;
+                            });
+                            // break;
                           }
-                          setState(() {
-                            _loadingscann = false;
-                          });
-
-                          // .then((value) =>
-                          //     _showErrorDialog(app_id_selected, res));
                         }
-                      // .then((value) =>
-                      //     _showErrorDialog(app_id_selected, scanResult_code))
-                      : null,
-                  child: Scan_button(
-                    active: app_name != 'الحصه' && _loadingscann == false,
-                  ),
+
+                        // print('coooooooode');
+                        // print(code_data[i].groupid);
+                        // print(code_data[i].code);
+                        // if (is_ok == true) {
+                        //   print('iss_okkk');
+                        // } else {
+                        //   print('iskkk');
+                        // }
+                        if (is_ok == true) {
+                          print('riss_okkk');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.green[300],
+                              content: Text(
+                                ' تم التسجيل بنجاح',
+                                style: TextStyle(fontFamily: 'GE-medium'),
+                              ),
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                          is_ok == false;
+                        } else {
+                          _showErrorDialog(
+                              'الطالب غير مسجل في المجموعة', 'غير مسجل');
+                        }
+                      }
+                    : () async {
+                        setState(() {
+                          _loadingscann = true;
+                        });
+                        // String res = await FlutterBarcodeScanner.scanBarcode(
+                        //     '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+                        try {
+                          String res = await FlutterBarcodeScanner.scanBarcode(
+                              '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+
+                          print(res + 'llllllllllllllll');
+                          dynamic resp = await Provider.of<AppointmentManager>(
+                                  context,
+                                  listen: false)
+                              .attendlesson(res, app_id_selected!);
+
+                          if (resp['last_appointment_attend'] == false) {
+                            _showAttendConfirmDialog(res, app_id_selected!);
+                            // ScaffoldMessenger.of(context).showSnackBar(
+                            //   SnackBar(
+                            //     backgroundColor: Colors.orange[200],
+                            //     content: Text(
+                            //       ' تم التسجيل بنجاح والحصه السابقه لم يحضرها',
+                            //       style: TextStyle(fontFamily: 'GE-medium'),
+                            //     ),
+                            //     duration: Duration(seconds: 3),
+                            //   ),
+                            // );
+                          }
+                          if (resp['last_appointment_attend'] == true &&
+                              resp['compensation'] == false) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.green[300],
+                                content: Text(
+                                  ' تم التسجيل بنجاح',
+                                  style: TextStyle(fontFamily: 'GE-medium'),
+                                ),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                          if (resp['last_appointment_attend'] == true &&
+                              resp['compensation'] == true) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.blue[200],
+                                content: Text(
+                                  ' تم التسجيل فى مجموعه تعويضيه',
+                                  style: TextStyle(fontFamily: 'GE-medium'),
+                                ),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                          // if (resp['last_appointment_attend'] ==
+                          //     'This Group Has not have appointments') {
+                          //   ScaffoldMessenger.of(context).showSnackBar(
+                          //     SnackBar(
+                          //       backgroundColor: Colors.green[300],
+                          //       content: Text(
+                          //         ' تم التسجيل بنجاح',
+                          //         style: TextStyle(fontFamily: 'GE-medium'),
+                          //       ),
+                          //       duration: Duration(seconds: 3),
+                          //     ),
+                          //   );
+                          // }
+                        } on HttpException catch (e) {
+                          _showErrorDialog(e.toString(), 'حدث خطأ');
+                        } catch (e) {
+                          _showErrorDialog('حاول مره اخري', 'حدث خطأ');
+                        }
+                        setState(() {
+                          _loadingscann = false;
+                        });
+
+                        // .then((value) =>
+                        //     _showErrorDialog(app_id_selected, res));
+                      },
+                // .then((value) =>
+                //     _showErrorDialog(app_id_selected, scanResult_code))
+                // : null,
+                child: Scan_button(
+                  active: app_name != 'الحصه' && _loadingscann == false,
                 ),
               ),
+            // ),
             if (Platform.isWindows)
               Consumer<AppStateManager>(
                   builder: (context, appstatemanager, child) {
@@ -1832,7 +2719,7 @@ class _ChoicesState extends State<Choices> {
 
     try {
       dynamic resp =
-          await Provider.of<AppointmentManager>(context, listen: false)
+          await Provider.of<AppointmentManager>(this.context, listen: false)
               .attendlesson(code_from_windows, app_id_selected!);
 
       if (resp['last_appointment_attend'] == false) {
@@ -1851,7 +2738,7 @@ class _ChoicesState extends State<Choices> {
       }
       if (resp['last_appointment_attend'] == true &&
           resp['compensation'] == false) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.green[300],
             content: Text(
@@ -1864,7 +2751,7 @@ class _ChoicesState extends State<Choices> {
       }
       if (resp['last_appointment_attend'] == true &&
           resp['compensation'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.blue[200],
             content: Text(
@@ -1893,7 +2780,7 @@ class _ChoicesState extends State<Choices> {
         _loadingscann = false;
       });
       // _showErrorDialog(e.toString(), 'حدث خطأ');
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(this.context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red[300],
           content: Text(
@@ -1907,7 +2794,7 @@ class _ChoicesState extends State<Choices> {
       setState(() {
         _loadingscann = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(this.context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red[300],
           content: Text(
@@ -2088,13 +2975,3 @@ class Button_Container extends StatelessWidget {
     );
   }
 }
-
-// class F extends ChangeNotifier {
-//   late String _groupname;
-//   String get name => _groupname;
-//   void g() {
-//     _groupname = group_name;
-//     // late String groupname = group_name;
-//     notifyListeners();
-//   }
-// }
