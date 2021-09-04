@@ -1482,6 +1482,79 @@ class _ChoicesState extends State<Choices> {
     );
   }
 
+   void _showErrorDialogappoint(String message, String title, int id ,String group_id) {
+    showDialog(
+      barrierDismissible: false,
+      context: this.context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          title,
+          style: TextStyle(fontFamily: 'GE-Bold'),
+        ),
+        content: Text(
+          message,
+          style: TextStyle(fontFamily: 'AraHamah1964R-Bold'),
+        ),
+        actions: <Widget>[
+          Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Center(
+                  child: TextButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Colors.red.withOpacity(.6))),
+                    // color: kbackgroundColor1,
+                    child: Text(
+                      'نعم',
+                      style: TextStyle(
+                          fontFamily: 'GE-medium', color: Colors.black),
+                    ),
+                    onPressed: () async {
+                      setState(() {
+                       // _isloading = true;
+                      });
+                      Navigator.of(ctx).pop();
+
+                      await Provider.of<AppointmentManager>(this.context, listen: false)
+                          .delete_appointment(id)
+                          .then((value) =>
+                              Provider.of<AppointmentManager>(this.context, listen: false)
+                                  .get_appointments(group_id))
+                          .then((_) {
+                        setState(() {
+                          //_isloading = false;
+                        });
+                      });
+                    },
+                  ),
+                ),
+                Center(
+                  child: TextButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Colors.green.withOpacity(.6))),
+                    // color: kbackgroundColor1,
+                    child: Text(
+                      'لا',
+                      style: TextStyle(
+                          fontFamily: 'GE-medium', color: Colors.black),
+                    ),
+                    onPressed: () {
+                      setState(() {});
+                      Navigator.of(ctx).pop();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   void _modalBottomSheetMenuappoint(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -1579,8 +1652,34 @@ class _ChoicesState extends State<Choices> {
                                       ));
                                     }
                                   }
+                                   return   Container(
+                                        margin:
+                                            EdgeInsets.symmetric(vertical: 5),
+                                        // color: colors[Index % colors.length],
+                                        child: Dismissible(
+                                          direction:
+                                              DismissDirection.startToEnd,
+                                          background:
+                                              Container(color: Colors.red),
+                                          // key: Key(Index.toString()),
+                                          key: UniqueKey(),
 
-                                  return Column(
+                                          onDismissed: (dirction) {
+                                            if (dirction ==
+                                                DismissDirection.startToEnd) {
+                                              _showErrorDialogappoint(
+                                                  'تاكيد مسح الحصة',
+                                                  'تاكيد',
+                                                 appointmentmanager
+                                                        .appointments![index].id!,
+                                                        '${group_id}'
+
+
+                                                      );
+                                            }
+                                          },
+
+                                  child: Column(
                                     children: [
                                       GestureDetector(
                                           onTap: () {
@@ -1617,6 +1716,8 @@ class _ChoicesState extends State<Choices> {
                                           )),
                                       Divider(),
                                     ],
+                                  )
+                                        )
                                   );
                                 },
                               ),
@@ -2365,243 +2466,294 @@ class _ChoicesState extends State<Choices> {
                 ],
               ),
             ),
+            // if (!Platform.isWindows)
+            //   // Consumer<AppStateManager>(
+            //   //   builder: (context, appstatemanager, child) =>
+
+            //   GestureDetector(
+            //     onTap: check_connectivity(context) == false
+            //         // app_name != 'الحصه' && _loadingscann == false
+
+            //         ? () async {
+            //             print('lllllllllllllhhhhhhhhhhhhhhhhhhhhhhh');
+            //             String res = await FlutterBarcodeScanner.scanBarcode(
+            //                 '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+            //             print('llllll' + res + 'yllllllllllllllll');
+            //             // if(res =='7565384k' ){
+            //             //            ScaffoldMessenger.of(context)
+            //             //                       .showSnackBar(
+            //             //                     SnackBar(
+            //             //                       backgroundColor: Colors.green[300],
+            //             //                       content: Text(
+            //             //                         ' تم التسجيل بنجاح',
+            //             //                         style: TextStyle(
+            //             //                             fontFamily: 'GE-medium'),
+            //             //                       ),
+            //             //                       duration: Duration(seconds: 3),
+            //             //                     ),
+            //             //                   );
+            //             //         }
+            //             ///////////////////
+
+            //             // _loadCodeData();
+            //             //   for (var i = 0; i < code_data.length; i++) {
+            //             //    // group_codes = [];
+
+            //             //     if (!group_codes.contains(code_data[i].code) &&
+            //             //         code_data[i].groupid == '${mygroup_id}') {
+            //             //       group_codes.add(code_data[i].code!);
+            //             //       print('sqflite subjecttttttttttttttttttt');
+            //             //       print(group_codes);
+            //             //         }
+            //             // print(group_codes);
+            //             print('hh' + group_codes[0] + 'hhh');
+            //             print('hh' + res + 'hhh');
+            //             for (var y = 0; y < group_codes.length; y++) {
+            //               if (res == group_codes[y]) {
+            //                 print('emmmo');
+            //                 is_ok = true;
+            //                 record_attend = true;
+            //                 setState(() {
+            //                   is_ok = true;
+            //                   attended_code.add(res);
+            //                   record_attend = true;
+            //                 });
+            //                 break;
+            //               } else {
+            //                 setState(() {
+            //                   print('noo emmo');
+            //                   is_ok = false;
+            //                   record_attend = false;
+            //                 });
+            //                 // break;
+            //               }
+            //             }
+
+            //             // print('coooooooode');
+            //             // print(code_data[i].groupid);
+            //             // print(code_data[i].code);
+            //             // if (is_ok == true) {
+            //             //   print('iss_okkk');
+            //             // } else {
+            //             //   print('iskkk');
+            //             // }
+            //             if (is_ok == true) {
+            //               print('riss_okkk');
+            //               ScaffoldMessenger.of(context).showSnackBar(
+            //                 SnackBar(
+            //                   backgroundColor: Colors.green[300],
+            //                   content: Text(
+            //                     ' تم التسجيل بنجاح',
+            //                     style: TextStyle(fontFamily: 'GE-medium'),
+            //                   ),
+            //                   duration: Duration(seconds: 3),
+            //                 ),
+            //               );
+            //               is_ok == false;
+            //             } else {
+            //               _showErrorDialog(
+            //                   'الطالب غير مسجل في المجموعة', 'غير مسجل');
+            //             }
+            //           }
+            //         : () async {
+            //             setState(() {
+            //               _loadingscann = true;
+            //             });
+            //             // String res = await FlutterBarcodeScanner.scanBarcode(
+            //             //     '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+            //             try {
+            //               String res = await FlutterBarcodeScanner.scanBarcode(
+            //                   '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+
+            //               print(res + 'llllllllllllllll');
+            //               dynamic resp = await Provider.of<AppointmentManager>(
+            //                       context,
+            //                       listen: false)
+            //                   .attendlesson(res, app_id_selected!);
+
+            //               if (resp['last_appointment_attend'] == false) {
+            //                 _showAttendConfirmDialog(res, app_id_selected!);
+            //                 // ScaffoldMessenger.of(context).showSnackBar(
+            //                 //   SnackBar(
+            //                 //     backgroundColor: Colors.orange[200],
+            //                 //     content: Text(
+            //                 //       ' تم التسجيل بنجاح والحصه السابقه لم يحضرها',
+            //                 //       style: TextStyle(fontFamily: 'GE-medium'),
+            //                 //     ),
+            //                 //     duration: Duration(seconds: 3),
+            //                 //   ),
+            //                 // );
+            //               }
+            //               if (resp['last_appointment_attend'] == true &&
+            //                   resp['compensation'] == false) {
+            //                 ScaffoldMessenger.of(context).showSnackBar(
+            //                   SnackBar(
+            //                     backgroundColor: Colors.green[300],
+            //                     content: Text(
+            //                       ' تم التسجيل بنجاح',
+            //                       style: TextStyle(fontFamily: 'GE-medium'),
+            //                     ),
+            //                     duration: Duration(seconds: 3),
+            //                   ),
+            //                 );
+            //               }
+            //               if (resp['last_appointment_attend'] == true &&
+            //                   resp['compensation'] == true) {
+            //                 ScaffoldMessenger.of(context).showSnackBar(
+            //                   SnackBar(
+            //                     backgroundColor: Colors.blue[200],
+            //                     content: Text(
+            //                       ' تم التسجيل فى مجموعه تعويضيه',
+            //                       style: TextStyle(fontFamily: 'GE-medium'),
+            //                     ),
+            //                     duration: Duration(seconds: 3),
+            //                   ),
+            //                 );
+            //               }
+            //               // if (resp['last_appointment_attend'] ==
+            //               //     'This Group Has not have appointments') {
+            //               //   ScaffoldMessenger.of(context).showSnackBar(
+            //               //     SnackBar(
+            //               //       backgroundColor: Colors.green[300],
+            //               //       content: Text(
+            //               //         ' تم التسجيل بنجاح',
+            //               //         style: TextStyle(fontFamily: 'GE-medium'),
+            //               //       ),
+            //               //       duration: Duration(seconds: 3),
+            //               //     ),
+            //               //   );
+            //               // }
+            //             } on HttpException catch (e) {
+            //               _showErrorDialog(e.toString(), 'حدث خطأ');
+            //             } catch (e) {
+            //               _showErrorDialog('حاول مره اخري', 'حدث خطأ');
+            //             }
+            //             setState(() {
+            //               _loadingscann = false;
+            //             });
+
+            //             // .then((value) =>
+            //             //     _showErrorDialog(app_id_selected, res));
+            //           },
+            //     // .then((value) =>
+            //     //     _showErrorDialog(app_id_selected, scanResult_code))
+            //     // : null,
+            //     child: Scan_button(
+            //       active: app_name != 'الحصه' && _loadingscann == false,
+            //     ),
+            //   ),
             if (!Platform.isWindows)
               // Consumer<AppStateManager>(
-              //   builder: (context, appstatemanager, child) =>
+              //     builder: (context, appstatemanager, child) {
 
-              GestureDetector(
-                onTap: check_connectivity(context) == false
-                    // app_name != 'الحصه' && _loadingscann == false
-
-                    ? () async {
-                        print('lllllllllllllhhhhhhhhhhhhhhhhhhhhhhh');
-                        String res = await FlutterBarcodeScanner.scanBarcode(
-                            '#ff6666', 'Cancel', true, ScanMode.BARCODE);
-                        print('llllll' + res + 'yllllllllllllllll');
-                        // if(res =='7565384k' ){
-                        //            ScaffoldMessenger.of(context)
-                        //                       .showSnackBar(
-                        //                     SnackBar(
-                        //                       backgroundColor: Colors.green[300],
-                        //                       content: Text(
-                        //                         ' تم التسجيل بنجاح',
-                        //                         style: TextStyle(
-                        //                             fontFamily: 'GE-medium'),
-                        //                       ),
-                        //                       duration: Duration(seconds: 3),
-                        //                     ),
-                        //                   );
-                        //         }
-                        ///////////////////
-
-                        // _loadCodeData();
-                        //   for (var i = 0; i < code_data.length; i++) {
-                        //    // group_codes = [];
-
-                        //     if (!group_codes.contains(code_data[i].code) &&
-                        //         code_data[i].groupid == '${mygroup_id}') {
-                        //       group_codes.add(code_data[i].code!);
-                        //       print('sqflite subjecttttttttttttttttttt');
-                        //       print(group_codes);
-                        //         }
-                        // print(group_codes);
-                        print('hh' + group_codes[0] + 'hhh');
-                        print('hh' + res + 'hhh');
-                        for (var y = 0; y < group_codes.length; y++) {
-                          if (res == group_codes[y]) {
-                            print('emmmo');
-                            is_ok = true;
-                            record_attend = true;
-                            setState(() {
-                              is_ok = true;
-                              attended_code.add(res);
-                              record_attend = true;
-                            });
-                            break;
-                          } else {
-                            setState(() {
-                              print('noo emmo');
-                              is_ok = false;
-                              record_attend = false;
-                            });
-                            // break;
-                          }
-                        }
-
-                        // print('coooooooode');
-                        // print(code_data[i].groupid);
-                        // print(code_data[i].code);
-                        // if (is_ok == true) {
-                        //   print('iss_okkk');
-                        // } else {
-                        //   print('iskkk');
-                        // }
-                        if (is_ok == true) {
-                          print('riss_okkk');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.green[300],
-                              content: Text(
-                                ' تم التسجيل بنجاح',
-                                style: TextStyle(fontFamily: 'GE-medium'),
-                              ),
-                              duration: Duration(seconds: 3),
-                            ),
-                          );
-                          is_ok == false;
-                        } else {
-                          _showErrorDialog(
-                              'الطالب غير مسجل في المجموعة', 'غير مسجل');
-                        }
+              RawKeyboardListener(
+                  // String inputK = "";
+                  // autofocus: true,
+                  focusNode: focusNode,
+                  onKey: (RawKeyEvent event) {
+                    if (event.runtimeType.toString() == 'RawKeyDownEvent' &&
+                        (app_name != 'الحصه' && _loadingscann == false)) {
+                      print(event.logicalKey.keyLabel);
+                      if (event.logicalKey.keyLabel == 'Backspace') {
+                        code_from_windows = '';
+                        return;
                       }
-                    : () async {
-                        setState(() {
-                          _loadingscann = true;
-                        });
-                        // String res = await FlutterBarcodeScanner.scanBarcode(
-                        //     '#ff6666', 'Cancel', true, ScanMode.BARCODE);
-                        try {
-                          String res = await FlutterBarcodeScanner.scanBarcode(
-                              '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+                      if (event.logicalKey.keyLabel == 'Shift Left' ||
+                          event.logicalKey.keyLabel == 'Control Left' ||
+                          event.logicalKey.keyLabel == 'Meta Left' ||
+                          event.logicalKey.keyLabel == 'Alt Left' ||
+                          event.logicalKey.keyLabel == ' ' ||
+                          event.logicalKey.keyLabel == 'Shift right' ||
+                          event.logicalKey.keyLabel == 'Control right' ||
+                          event.logicalKey.keyLabel == 'Meta right' ||
+                          event.logicalKey.keyLabel == 'Alt right' ||
+                          event.logicalKey.keyLabel == ' ' ||
+                          event.logicalKey.keyLabel == 'Shift right' ||
+                          event.logicalKey.keyLabel == 'Caps Lock' ||
+                          event.logicalKey.keyLabel == 'Tab' ||
+                          event.logicalKey.keyLabel == 'Numpad 1' ||
+                          event.logicalKey.keyLabel == 'Numpad 2' ||
+                          event.logicalKey.keyLabel == 'Numpad 3' ||
+                          event.logicalKey.keyLabel == 'Numpad 4' ||
+                          event.logicalKey.keyLabel == 'Numpad 5' ||
+                          event.logicalKey.keyLabel == 'Numpad 6' ||
+                          event.logicalKey.keyLabel == 'Numpad 7' ||
+                          event.logicalKey.keyLabel == 'Numpad 8' ||
+                          event.logicalKey.keyLabel == 'Numpad 9' ||
+                          event.logicalKey.keyLabel == 'Numpad 0' ||
+                          event.logicalKey.keyLabel == 'Numpad .' ||
+                          event.logicalKey.keyLabel == 'Numpad /' ||
+                          event.logicalKey.keyLabel == 'Numpad *' ||
+                          event.logicalKey.keyLabel == '=' ||
+                          event.logicalKey.keyLabel == '-' ||
+                          event.logicalKey.keyLabel == 'Arrow') {
+                        print('objects');
 
-                          print(res + 'llllllllllllllll');
-                          dynamic resp = await Provider.of<AppointmentManager>(
-                                  context,
-                                  listen: false)
-                              .attendlesson(res, app_id_selected!);
+                        return;
+                      }
+                      if (event.logicalKey.keyLabel == 'Enter') {
+                        if (app_name != 'الحصه' && _loadingscann == false) {
+                          if (check_connectivity(context) == false) {
+                        
 
-                          if (resp['last_appointment_attend'] == false) {
-                            _showAttendConfirmDialog(res, app_id_selected!);
-                            // ScaffoldMessenger.of(context).showSnackBar(
-                            //   SnackBar(
-                            //     backgroundColor: Colors.orange[200],
-                            //     content: Text(
-                            //       ' تم التسجيل بنجاح والحصه السابقه لم يحضرها',
-                            //       style: TextStyle(fontFamily: 'GE-medium'),
-                            //     ),
-                            //     duration: Duration(seconds: 3),
-                            //   ),
-                            // );
-                          }
-                          if (resp['last_appointment_attend'] == true &&
-                              resp['compensation'] == false) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.green[300],
-                                content: Text(
-                                  ' تم التسجيل بنجاح',
-                                  style: TextStyle(fontFamily: 'GE-medium'),
-                                ),
-                                duration: Duration(seconds: 3),
-                              ),
-                            );
-                          }
-                          if (resp['last_appointment_attend'] == true &&
-                              resp['compensation'] == true) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.blue[200],
-                                content: Text(
-                                  ' تم التسجيل فى مجموعه تعويضيه',
-                                  style: TextStyle(fontFamily: 'GE-medium'),
-                                ),
-                                duration: Duration(seconds: 3),
-                              ),
-                            );
-                          }
-                          // if (resp['last_appointment_attend'] ==
-                          //     'This Group Has not have appointments') {
-                          //   ScaffoldMessenger.of(context).showSnackBar(
-                          //     SnackBar(
-                          //       backgroundColor: Colors.green[300],
-                          //       content: Text(
-                          //         ' تم التسجيل بنجاح',
-                          //         style: TextStyle(fontFamily: 'GE-medium'),
-                          //       ),
-                          //       duration: Duration(seconds: 3),
-                          //     ),
-                          //   );
-                          // }
-                        } on HttpException catch (e) {
-                          _showErrorDialog(e.toString(), 'حدث خطأ');
-                        } catch (e) {
-                          _showErrorDialog('حاول مره اخري', 'حدث خطأ');
-                        }
-                        setState(() {
-                          _loadingscann = false;
-                        });
+                            () async {
+                             // print('lllllllllllllhhhhhhhhhhhhhhhhhhhhhhh');
+                              String res =
+                                  await FlutterBarcodeScanner.scanBarcode(
+                                      '#ff6666',
+                                      'Cancel',
+                                      true,
+                                      ScanMode.BARCODE);
 
-                        // .then((value) =>
-                        //     _showErrorDialog(app_id_selected, res));
-                      },
-                // .then((value) =>
-                //     _showErrorDialog(app_id_selected, scanResult_code))
-                // : null,
-                child: Scan_button(
-                  active: app_name != 'الحصه' && _loadingscann == false,
-                ),
-              ),
-            if (Platform.isWindows)
-              Consumer<AppStateManager>(
-                  builder: (context, appstatemanager, child) {
-                String inputK = "";
-                return RawKeyboardListener(
-                    // autofocus: true,
-                    focusNode: focusNode,
-                    onKey: (RawKeyEvent event) {
-                      if (event.runtimeType.toString() == 'RawKeyDownEvent' &&
-                          (app_name != 'الحصه' && _loadingscann == false)) {
-                        print(event.logicalKey.keyLabel);
-                        if (event.logicalKey.keyLabel == 'Backspace') {
-                          code_from_windows = '';
-                          return;
-                        }
-                        if (event.logicalKey.keyLabel == 'Shift Left' ||
-                            event.logicalKey.keyLabel == 'Control Left' ||
-                            event.logicalKey.keyLabel == 'Meta Left' ||
-                            event.logicalKey.keyLabel == 'Alt Left' ||
-                            event.logicalKey.keyLabel == ' ' ||
-                            event.logicalKey.keyLabel == 'Shift right' ||
-                            event.logicalKey.keyLabel == 'Control right' ||
-                            event.logicalKey.keyLabel == 'Meta right' ||
-                            event.logicalKey.keyLabel == 'Alt right' ||
-                            event.logicalKey.keyLabel == ' ' ||
-                            event.logicalKey.keyLabel == 'Shift right' ||
-                            event.logicalKey.keyLabel == 'Caps Lock' ||
-                            event.logicalKey.keyLabel == 'Tab' ||
-                            event.logicalKey.keyLabel == 'Numpad 1' ||
-                            event.logicalKey.keyLabel == 'Numpad 2' ||
-                            event.logicalKey.keyLabel == 'Numpad 3' ||
-                            event.logicalKey.keyLabel == 'Numpad 4' ||
-                            event.logicalKey.keyLabel == 'Numpad 5' ||
-                            event.logicalKey.keyLabel == 'Numpad 6' ||
-                            event.logicalKey.keyLabel == 'Numpad 7' ||
-                            event.logicalKey.keyLabel == 'Numpad 8' ||
-                            event.logicalKey.keyLabel == 'Numpad 9' ||
-                            event.logicalKey.keyLabel == 'Numpad 0' ||
-                            event.logicalKey.keyLabel == 'Numpad .' ||
-                            event.logicalKey.keyLabel == 'Numpad /' ||
-                            event.logicalKey.keyLabel == 'Numpad *' ||
-                            event.logicalKey.keyLabel == '=' ||
-                            event.logicalKey.keyLabel == '-' ||
-                            event.logicalKey.keyLabel == 'Arrow') {
-                          print('objects');
+                              for (var y = 0; y < group_codes.length; y++) {
+                                if (res == group_codes[y]) {
+                                  
+                                  is_ok = true;
+                                  record_attend = true;
+                                  setState(() {
+                                    is_ok = true;
+                                    attended_code.add(res);
+                                    record_attend = true;
+                                  });
+                                  break;
+                                } else {
+                                  setState(() {
+                                  
+                                    is_ok = false;
+                                    record_attend = false;
+                                  });
+                                  // break;
+                                }
+                              }
 
-                          return;
-                        }
-                        if (event.logicalKey.keyLabel == 'Enter') {
-                          if (app_name != 'الحصه' && _loadingscann == false) {
+                              
+                              if (is_ok == true) {
+                                print('riss_okkk');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: Colors.green[300],
+                                    content: Text(
+                                      ' تم التسجيل بنجاح',
+                                      style: TextStyle(fontFamily: 'GE-medium'),
+                                    ),
+                                    duration: Duration(seconds: 3),
+                                  ),
+                                );
+                                is_ok == false;
+                              } else {
+                                _showErrorDialog(
+                                    'الطالب غير مسجل في المجموعة', 'غير مسجل');
+                              }
+                            };
+                          } else {
                             enterscaninwindows();
                           }
-
-                          // focusNode.requestFocus();
-                          return;
                         }
 
-                        code_from_windows += event.logicalKey.keyLabel;
-
-                        print(code_from_windows);
+                        // focusNode.requestFocus();
+                        return;
                       }
+
                       setState(() {});
                     },
                     child: Column(
@@ -2622,15 +2774,17 @@ class _ChoicesState extends State<Choices> {
                                 app_name != 'الحصه' && _loadingscann == false,
                           ),
                         ),
-                        Container(
-                          width: 300,
-                          child: Center(
-                            child: Text(code_from_windows),
-                          ),
-                        )
-                      ],
-                    ));
-              })
+                      ),
+                      Container(
+                        width: 300,
+                        child: Center(
+                          child: Text(code_from_windows),
+                        ),
+                      )
+                    ],
+                  ))
+            //;
+            // })
           ],
         ),
       ),

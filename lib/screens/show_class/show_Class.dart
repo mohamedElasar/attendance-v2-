@@ -148,52 +148,69 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                                     Container(
                                   margin: EdgeInsets.symmetric(vertical: 5),
                                   color: colors[Index % colors.length],
-                                  child: ListTile(
-                                    trailing: InkWell(
+                                  child: Dismissible(
+                                    direction: DismissDirection.startToEnd,
+                                    background: Container(color: Colors.red),
+                                    // key: Key(Index.toString()),
+                                    key: UniqueKey(),
+
+                                    onDismissed: (dirction) {
+                                      if (dirction ==
+                                          DismissDirection.startToEnd) {
+                                        _showErrorDialogappoint(
+                                            'تاكيد مسح الحصة',
+                                            'تاكيد',
+                                            appointmgr.appointments![Index].id!,
+                                            widget.mygroup_id!);
+                                      }
+                                    },
+                                    child: ListTile(
+                                      trailing: InkWell(
+                                        onTap: () {
+                                          Provider.of<AppStateManager>(context,
+                                                  listen: false)
+                                              .gotosinglelessonabs(
+                                                  true,
+                                                  appointmgr
+                                                      .appointmentsshow![Index]
+                                                      .id!
+                                                      .toString(),
+                                                  appointmgr.appointmentsshow![
+                                                      Index]);
+                                        },
+                                        child: Text(
+                                          'الغياب',
+                                          style: TextStyle(
+                                              fontFamily: 'GE-light',
+                                              color: kbuttonColor1),
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        ' الساعه :   ${appointmgr.appointmentsshow![Index].time!}',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            // color: text_colors[Index % colors.length],
+                                            fontFamily: 'GE-light'),
+                                      ),
                                       onTap: () {
                                         Provider.of<AppStateManager>(context,
                                                 listen: false)
-                                            .gotosinglelessonabs(
+                                            .goToSinglelessonattend(
                                                 true,
                                                 appointmgr
-                                                    .appointmentsshow![Index]
-                                                    .id!
+                                                    .appointmentsshow![Index].id
                                                     .toString(),
                                                 appointmgr
                                                     .appointmentsshow![Index]);
                                       },
-                                      child: Text(
-                                        'الغياب',
+                                      title: Text(
+                                        'تاريخ الحصه :   ${appointmgr.appointmentsshow![Index].date!}',
                                         style: TextStyle(
-                                            fontFamily: 'GE-light',
-                                            color: kbuttonColor1),
+                                            color: Colors.black,
+                                            // color: text_colors[Index % colors.length],
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'GE-medium'),
                                       ),
-                                    ),
-                                    subtitle: Text(
-                                      ' الساعه :   ${appointmgr.appointmentsshow![Index].time!}',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          // color: text_colors[Index % colors.length],
-                                          fontFamily: 'GE-light'),
-                                    ),
-                                    onTap: () {
-                                      Provider.of<AppStateManager>(context,
-                                              listen: false)
-                                          .goToSinglelessonattend(
-                                              true,
-                                              appointmgr
-                                                  .appointmentsshow![Index].id
-                                                  .toString(),
-                                              appointmgr
-                                                  .appointmentsshow![Index]);
-                                    },
-                                    title: Text(
-                                      'تاريخ الحصه :   ${appointmgr.appointmentsshow![Index].date!}',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          // color: text_colors[Index % colors.length],
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'GE-medium'),
                                     ),
                                   ),
                                 ),
@@ -205,6 +222,82 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
               ],
             ),
     ));
+  }
+
+  void _showErrorDialogappoint(
+      String message, String title, int id, String group_id) {
+    showDialog(
+      barrierDismissible: false,
+      context: this.context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          title,
+          style: TextStyle(fontFamily: 'GE-Bold'),
+        ),
+        content: Text(
+          message,
+          style: TextStyle(fontFamily: 'AraHamah1964R-Bold'),
+        ),
+        actions: <Widget>[
+          Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Center(
+                  child: TextButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Colors.red.withOpacity(.6))),
+                    // color: kbackgroundColor1,
+                    child: Text(
+                      'نعم',
+                      style: TextStyle(
+                          fontFamily: 'GE-medium', color: Colors.black),
+                    ),
+                    onPressed: () async {
+                      setState(() {
+                        // _isloading = true;
+                      });
+                      Navigator.of(ctx).pop();
+
+                      await Provider.of<AppointmentManager>(this.context,
+                              listen: false)
+                          .delete_appointment(id)
+                          .then((value) => Provider.of<AppointmentManager>(
+                                  this.context,
+                                  listen: false)
+                              .get_appointments(group_id))
+                          .then((_) {
+                        setState(() {
+                          //_isloading = false;
+                        });
+                      });
+                    },
+                  ),
+                ),
+                Center(
+                  child: TextButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Colors.green.withOpacity(.6))),
+                    // color: kbackgroundColor1,
+                    child: Text(
+                      'لا',
+                      style: TextStyle(
+                          fontFamily: 'GE-medium', color: Colors.black),
+                    ),
+                    onPressed: () {
+                      setState(() {});
+                      Navigator.of(ctx).pop();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   Widget buildChip(text) => Chip(

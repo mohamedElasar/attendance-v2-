@@ -104,6 +104,32 @@ class AppointmentManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  /////
+  Future<void> delete_appointment(int id) async {
+    var url =
+        Uri.https('development.mrsaidmostafa.com', '/api/appointments/$id');
+    try {
+      var response = await http.delete(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer $authToken'
+        },
+      );
+      final responseData = json.decode(response.body);
+      print(responseData);
+      if (responseData['massage'] ==
+          'The appointment has been deleted successfully.') {
+        _appointments.removeWhere((e) => e.id == id);
+      }
+    } catch (error) {
+      print(error);
+    }
+
+    notifyListeners();
+  }
+  /////
+
   Future<void> get_appointmentsshow(String groupid) async {
     var url =
         Uri.https('development.mrsaidmostafa.com', '/api/groups/$groupid');
