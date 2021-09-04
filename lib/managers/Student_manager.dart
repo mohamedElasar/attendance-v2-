@@ -27,10 +27,12 @@ class StudentManager extends ChangeNotifier {
   List<StudentModelSearch> __students = [];
   List<StudentModelSimple> _studentsSimple = [];
   Student4ModelSearch _singleStudent = Student4ModelSearch();
+  int? _abscount;
   List<StudentModelSearch> get students => __students;
   List<StudentModelSimple> get studentsSimple => _studentsSimple;
   Student4ModelSearch? get singleStudent => _singleStudent;
   int? get studNumberInGroup => _studNumberInGroup;
+  int? get studNumberabs => _abscount;
 
   get hasmore => _hasMore;
   get pageNumber => _pageNumber;
@@ -583,6 +585,7 @@ class StudentManager extends ChangeNotifier {
       final responseData = json.decode(response.body);
 
       List<dynamic> studentsList = responseData['data'];
+      _abscount = responseData['meta']['total'];
       // print(studentsList[0]['groups']);
       // print(StudentModelSearch.fromJson(studentsList[0]).code);
       // __students.add(StudentModelSearch.fromJson(studentsList[0]));

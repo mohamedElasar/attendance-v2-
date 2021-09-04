@@ -61,7 +61,9 @@ class Students_Page_Title extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          studentManager.studNumberInGroup.toString(),
+                          studentManager.studNumberInGroup == null
+                              ? ''
+                              : studentManager.studNumberInGroup.toString(),
                           style: TextStyle(
                               fontFamily: 'GE-medium',
                               fontSize: 12,

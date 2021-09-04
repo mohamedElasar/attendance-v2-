@@ -1,8 +1,11 @@
 import 'package:attendance/managers/App_State_manager.dart';
+import 'package:attendance/managers/Student_manager.dart';
 import 'package:attendance/models/appointment.dart';
 import 'package:attendance/navigation/screens.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../constants.dart';
 import 'components/AbsTopPage.dart';
 import 'components/Students_page_title.dart';
@@ -47,19 +50,30 @@ class Absence_Show extends StatelessWidget {
             //   builder: (builder, appstatemanager, child) => Students_Page_Title(
             //       title: appstatemanager.getGroupSelected.name),
             // ),
-
-            Padding(
-              padding: const EdgeInsetsDirectional.only(
-                  start: 20, end: 20, top: 20, bottom: 20),
-              child: Wrap(spacing: 10.0, runSpacing: 10.0, children: <Widget>[
-                buildChip(mylesson!.name!),
-                // buildChip(mylesson!.time!),
-                // buildChip('مجموعة الياسمين 2'),
-                // widget.mygroup!.teacher == null
-                //     ? Container()
-                //     : buildChip(widget.mygroup!.teacher!.name!),
-              ]),
+            Consumer<StudentManager>(
+              builder: (context, stumanager, child) => Padding(
+                padding: const EdgeInsetsDirectional.only(
+                    start: 20, end: 20, top: 20, bottom: 20),
+                child: Wrap(spacing: 10.0, runSpacing: 10.0, children: <Widget>[
+                  buildChip(mylesson!.name!),
+                  buildChip(stumanager.studNumberabs == null
+                      ? ''
+                      : '${stumanager.studNumberabs.toString()}  طالب '),
+                  InkWell(
+                      onTap: () {
+                        launch(
+                            'https://development.mrsaidmostafa.com/api/exports/absence/appointments/${mylesson!.id!.toString()}');
+                      },
+                      child: buildChip('تصدير اكسل', export: true)),
+                  // buildChip(mylesson!.time!),
+                  // buildChip('مجموعة الياسمين 2'),
+                  // widget.mygroup!.teacher == null
+                  //     ? Container()
+                  //     : buildChip(widget.mygroup!.teacher!.name!),
+                ]),
+              ),
             ),
+
             Expanded(
               child: Column(
                 children: [
@@ -74,13 +88,13 @@ class Absence_Show extends StatelessWidget {
     );
   }
 
-  Widget buildChip(text) => Chip(
+  Widget buildChip(text, {export = false}) => Chip(
         labelPadding: EdgeInsets.all(2.0),
         label: Text(
           text,
           style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
+              color: !export ? Colors.black : kbuttonColor1,
+              fontWeight: !export ? FontWeight.bold : FontWeight.normal,
               fontFamily: 'GE-medium'),
         ),
         backgroundColor: kbackgroundColor2,
