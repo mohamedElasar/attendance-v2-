@@ -256,7 +256,7 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                     ),
                     onPressed: () async {
                       setState(() {
-                        _isLoading = true;
+                        // _isloading = true;
                       });
                       Navigator.of(ctx).pop();
 
@@ -269,7 +269,7 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                               .get_appointments(group_id))
                           .then((_) {
                         setState(() {
-                          _isLoading = false;
+                          //_isloading = false;
                         });
                       });
                     },
@@ -287,6 +287,7 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                           fontFamily: 'GE-medium', color: Colors.black),
                     ),
                     onPressed: () {
+                      setState(() {});
                       Navigator.of(ctx).pop();
                     },
                   ),
