@@ -22,108 +22,7 @@ class Student_Top_Page extends StatefulWidget {
 class _Student_Top_PageState extends State<Student_Top_Page> {
   TextEditingController searchcontroller = TextEditingController();
 
-  void _codeOrName() {
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          'البحث',
-          style: TextStyle(fontFamily: 'GE-Bold'),
-        ),
-        content: Text(
-          'طريقه البحث',
-          style: TextStyle(fontFamily: 'AraHamah1964R-Bold'),
-        ),
-        actions: <Widget>[
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                TextButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(kbackgroundColor1)),
-                  // color: kbackgroundColor1,
-                  child: Text(
-                    'الباركود',
-                    style:
-                        TextStyle(fontFamily: 'GE-medium', color: Colors.black),
-                  ),
-                  onPressed: () {
-                    if (searchcontroller.text == '') {
-                      Provider.of<StudentManager>(context, listen: false)
-                          .resetlist();
-                      Provider.of<StudentManager>(context, listen: false)
-                          .getMoreDatafiltered(widget.groupId!);
-                      FocusScopeNode currentFocus = FocusScope.of(context);
-
-                      if (!currentFocus.hasPrimaryFocus) {
-                        currentFocus.unfocus();
-                      }
-                    } else {
-                      print('hello');
-                      Provider.of<StudentManager>(context, listen: false)
-                          .searchcodeStudent2(
-                              widget.groupId!, searchcontroller.text);
-                      FocusScopeNode currentFocus = FocusScope.of(context);
-
-                      if (!currentFocus.hasPrimaryFocus) {
-                        currentFocus.unfocus();
-                      }
-                    }
-
-                    Navigator.of(ctx).pop();
-                  },
-                ),
-                TextButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.red[200])),
-                  // color: kbackgroundColor1,
-                  child: Text(
-                    'الاسم',
-                    style:
-                        TextStyle(fontFamily: 'GE-medium', color: Colors.black),
-                  ),
-                  onPressed: () {
-                    if (searchcontroller.text == '') {
-                      Provider.of<StudentManager>(context, listen: false)
-                          .resetlist();
-                      Provider.of<StudentManager>(context, listen: false)
-                          .getMoreDatafiltered(widget.groupId!);
-                      FocusScopeNode currentFocus = FocusScope.of(context);
-
-                      if (!currentFocus.hasPrimaryFocus) {
-                        currentFocus.unfocus();
-                      }
-                    } else {
-                      Provider.of<StudentManager>(context, listen: false)
-                          .getDataSearch(
-                              widget.groupId!, searchcontroller.text);
-                      FocusScopeNode currentFocus = FocusScope.of(context);
-
-                      if (!currentFocus.hasPrimaryFocus) {
-                        currentFocus.unfocus();
-                      }
-                    }
-
-                    Navigator.of(ctx).pop();
-                    // try {
-                    //   Provider.of<AppointmentManager>(context, listen: false)
-                    //       .unattendlesson(code, lessonid);
-                    // } catch (e) {
-                    //   _showErrorDialog('تم تسجيل الطالب حضور', 'حدث خطأ');
-                    // }
-                  },
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
+  void _codeOrName() {}
 
   @override
   Widget build(BuildContext context) {
@@ -202,26 +101,156 @@ class _Student_Top_PageState extends State<Student_Top_Page> {
                         ),
                       ), //test
                       InkWell(
-                          onTap: searchcontroller.text == ''
-                              ? () {
-                                  if (searchcontroller.text == '') {
-                                    Provider.of<StudentManager>(context,
-                                            listen: false)
-                                        .resetlist();
-                                    Provider.of<StudentManager>(context,
-                                            listen: false)
-                                        .getMoreDatafiltered(widget.groupId!);
-                                    FocusScopeNode currentFocus =
-                                        FocusScope.of(context);
+                          onTap: () {
+                            if (searchcontroller.text.isEmpty) {
+                              print(searchcontroller.text);
+                              Provider.of<StudentManager>(context,
+                                      listen: false)
+                                  .resetlist();
+                              Provider.of<StudentManager>(context,
+                                      listen: false)
+                                  .getMoreDatafiltered(widget.groupId!);
+                              FocusScopeNode currentFocus =
+                                  FocusScope.of(context);
 
-                                    if (!currentFocus.hasPrimaryFocus) {
-                                      currentFocus.unfocus();
-                                    }
-                                  }
-                                }
-                              : () {
-                                  _codeOrName();
-                                },
+                              if (!currentFocus.hasPrimaryFocus) {
+                                currentFocus.unfocus();
+                              }
+                            } else {
+                              print('aaa');
+                              showDialog(
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: Text(
+                                    'البحث',
+                                    style: TextStyle(fontFamily: 'GE-Bold'),
+                                  ),
+                                  content: Text(
+                                    'طريقه البحث',
+                                    style: TextStyle(
+                                        fontFamily: 'AraHamah1964R-Bold'),
+                                  ),
+                                  actions: <Widget>[
+                                    Center(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          TextButton(
+                                            style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                        kbackgroundColor1)),
+                                            // color: kbackgroundColor1,
+                                            child: Text(
+                                              'الباركود',
+                                              style: TextStyle(
+                                                  fontFamily: 'GE-medium',
+                                                  color: Colors.black),
+                                            ),
+                                            onPressed: () {
+                                              if (searchcontroller.text == '') {
+                                                Provider.of<StudentManager>(
+                                                        context,
+                                                        listen: false)
+                                                    .resetlist();
+                                                Provider.of<StudentManager>(
+                                                        context,
+                                                        listen: false)
+                                                    .getMoreDatafiltered(
+                                                        widget.groupId!);
+                                                FocusScopeNode currentFocus =
+                                                    FocusScope.of(context);
+
+                                                if (!currentFocus
+                                                    .hasPrimaryFocus) {
+                                                  currentFocus.unfocus();
+                                                }
+                                              } else {
+                                                print('hello');
+                                                Provider.of<StudentManager>(
+                                                        context,
+                                                        listen: false)
+                                                    .searchcodeStudent2(
+                                                        widget.groupId!,
+                                                        searchcontroller.text);
+                                                FocusScopeNode currentFocus =
+                                                    FocusScope.of(context);
+
+                                                if (!currentFocus
+                                                    .hasPrimaryFocus) {
+                                                  currentFocus.unfocus();
+                                                }
+                                              }
+
+                                              Navigator.of(ctx).pop();
+                                            },
+                                          ),
+                                          TextButton(
+                                            style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.red[200])),
+                                            // color: kbackgroundColor1,
+                                            child: Text(
+                                              'الاسم',
+                                              style: TextStyle(
+                                                  fontFamily: 'GE-medium',
+                                                  color: Colors.black),
+                                            ),
+                                            onPressed: () {
+                                              if (searchcontroller.text == '') {
+                                                Provider.of<StudentManager>(
+                                                        context,
+                                                        listen: false)
+                                                    .resetlist();
+                                                Provider.of<StudentManager>(
+                                                        context,
+                                                        listen: false)
+                                                    .getMoreDatafiltered(
+                                                        widget.groupId!);
+                                                FocusScopeNode currentFocus =
+                                                    FocusScope.of(context);
+
+                                                if (!currentFocus
+                                                    .hasPrimaryFocus) {
+                                                  currentFocus.unfocus();
+                                                }
+                                              } else {
+                                                Provider.of<StudentManager>(
+                                                        context,
+                                                        listen: false)
+                                                    .getDataSearch(
+                                                        widget.groupId!,
+                                                        searchcontroller.text);
+                                                FocusScopeNode currentFocus =
+                                                    FocusScope.of(context);
+
+                                                if (!currentFocus
+                                                    .hasPrimaryFocus) {
+                                                  currentFocus.unfocus();
+                                                }
+                                              }
+
+                                              Navigator.of(ctx).pop();
+                                              // try {
+                                              //   Provider.of<AppointmentManager>(context, listen: false)
+                                              //       .unattendlesson(code, lessonid);
+                                              // } catch (e) {
+                                              //   _showErrorDialog('تم تسجيل الطالب حضور', 'حدث خطأ');
+                                              // }
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              );
+                            }
+                          },
+
                           // onTap: () {
                           //   if (searchcontroller.text == '') {
                           //     Provider.of<StudentManager>(context,
