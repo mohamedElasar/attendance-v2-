@@ -160,7 +160,8 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                                         _showErrorDialogappoint(
                                             'تاكيد مسح الحصة',
                                             'تاكيد',
-                                            appointmgr.appointments![Index].id!,
+                                           appointmgr
+                                                .appointmentsshow![Index].id!,
                                             widget.mygroup_id!);
                                       }
                                     },
@@ -204,7 +205,7 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                                                     .appointmentsshow![Index]);
                                       },
                                       title: Text(
-                                        'تاريخ الحصه :   ${appointmgr.appointmentsshow![Index].date!}',
+                                        'fتاريخ الحصه :   ${appointmgr.appointmentsshow![Index].date!}',
                                         style: TextStyle(
                                             color: Colors.black,
                                             // color: text_colors[Index % colors.length],
@@ -224,7 +225,7 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
     ));
   }
 
-  void _showErrorDialogappoint(
+   void _showErrorDialogappoint(
       String message, String title, int id, String group_id) {
     showDialog(
       barrierDismissible: false,
@@ -266,7 +267,7 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                           .then((value) => Provider.of<AppointmentManager>(
                                   this.context,
                                   listen: false)
-                              .get_appointments(group_id))
+                              .get_appointmentsshow(group_id))
                           .then((_) {
                         setState(() {
                           _isLoading = false;
@@ -287,6 +288,7 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                           fontFamily: 'GE-medium', color: Colors.black),
                     ),
                     onPressed: () {
+                      setState(() {});
                       Navigator.of(ctx).pop();
                     },
                   ),
