@@ -24,6 +24,9 @@ class AppointmentManager extends ChangeNotifier {
   AppointmentModel? _currentApp = AppointmentModel();
   List<StudentModelSimple> _students_attend = [];
   List<StudentModelSimple> get student_attend => _students_attend;
+  List<StudentModelSimple> _students_attend_comensate = [];
+  List<StudentModelSimple> get students_attend_compensate =>
+      _students_attend_comensate;
   static List<StudentModelSimple> myattend = [];
 
   List<AppointmentModel>? get appointments => _appointments;
@@ -182,7 +185,11 @@ class AppointmentManager extends ChangeNotifier {
           list.firstWhere((element) => element.id.toString() == lessonid);
 
       List<StudentModelSimple>? studentsattend = ourApp.students;
+      List<StudentModelSimple>? studentsattendCompensate =
+          ourApp.compensateStudents;
       _students_attend = studentsattend!;
+      _students_attend_comensate = studentsattendCompensate!;
+
       myattend = _students_attend;
       _loading = false;
       print(_students_attend);

@@ -281,6 +281,8 @@ class _Show_Group_PresenceState extends State<Show_Group_Presence> {
                       buildChip('تاريخ الحصه :  ${widget.mylesson!.date}'),
                       buildChip(
                           'الحضور:  ${widget.mylesson!.students!.length.toString()}'),
+                      buildChip(
+                          'التعويض:  ${widget.mylesson!.compensateStudents!.length.toString()}'),
                       InkWell(
                           onTap: () {
                             launch(

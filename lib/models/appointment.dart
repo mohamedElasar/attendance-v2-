@@ -8,8 +8,10 @@ class AppointmentModel {
   String? name;
   String? date;
   List<StudentModelSimple>? students;
+  List<StudentModelSimple>? compensateStudents;
 
-  AppointmentModel({this.id, this.time, this.students, this.name});
+  AppointmentModel(
+      {this.id, this.time, this.students, this.name, this.compensateStudents});
 
   AppointmentModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -18,6 +20,11 @@ class AppointmentModel {
     date = json['date'];
     students = List<StudentModelSimple>.from(
       json['students'].map(
+        (model) => StudentModelSimple.fromJson(model),
+      ),
+    );
+    compensateStudents = List<StudentModelSimple>.from(
+      json['compensation_students'].map(
         (model) => StudentModelSimple.fromJson(model),
       ),
     );
@@ -31,6 +38,10 @@ class AppointmentModel {
     data['name'] = this.name;
     if (this.students != null) {
       data['students'] = this.students!.map((v) => v.toJson()).toList();
+    }
+    if (this.compensateStudents != null) {
+      data['compensation_students'] =
+          this.compensateStudents!.map((v) => v.toJson()).toList();
     }
     return data;
   }

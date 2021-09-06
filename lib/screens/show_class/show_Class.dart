@@ -160,7 +160,7 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                                         _showErrorDialogappoint(
                                             'تاكيد مسح الحصة',
                                             'تاكيد',
-                                           appointmgr
+                                            appointmgr
                                                 .appointmentsshow![Index].id!,
                                             widget.mygroup_id!);
                                       }
@@ -205,7 +205,7 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
                                                     .appointmentsshow![Index]);
                                       },
                                       title: Text(
-                                        'fتاريخ الحصه :   ${appointmgr.appointmentsshow![Index].date!}',
+                                        'تاريخ الحصه :   ${appointmgr.appointmentsshow![Index].date!}',
                                         style: TextStyle(
                                             color: Colors.black,
                                             // color: text_colors[Index % colors.length],
@@ -225,7 +225,7 @@ class _Show_Group_ClassState extends State<Show_Group_Class> {
     ));
   }
 
-   void _showErrorDialogappoint(
+  void _showErrorDialogappoint(
       String message, String title, int id, String group_id) {
     showDialog(
       barrierDismissible: false,
