@@ -572,17 +572,6 @@ class StudentSearch extends SearchDelegate<String> {
                 }
               },
             ),
-            // IconButton(
-            //   icon: Icon(Icons.clear),
-            //   onPressed: () {
-            //     if (query.isEmpty) {
-            //       close(context, '');
-            //     } else {
-            //       query = '';
-            //       showSuggestions(context);
-            //     }
-            //   },
-            // ),
           ],
         )
       ];

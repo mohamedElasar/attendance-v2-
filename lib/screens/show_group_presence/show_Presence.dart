@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:attendance/constants.dart';
 import 'package:attendance/helper/httpexception.dart';
+import 'package:attendance/managers/App_State_manager.dart';
 import 'package:attendance/managers/Appointment_manager.dart';
 import 'package:attendance/managers/group_manager.dart';
+import 'package:attendance/models/StudentModelSimple.dart';
 import 'package:attendance/models/appointment.dart';
 import 'package:attendance/models/groupmodelsimple.dart';
 import 'package:attendance/navigation/screens.dart';
@@ -149,6 +151,43 @@ class _Show_Group_PresenceState extends State<Show_Group_Presence> {
     );
   }
 
+  void _showstudentsCompensate(
+      {String? title, List<StudentModelSimple>? com_students, context}) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          title!,
+          style: TextStyle(fontFamily: 'GE-Bold'),
+        ),
+        content: Container(
+          height: 300,
+          child: ListView.builder(
+            itemBuilder: (ctx, index) => ListTile(
+              leading: Text('com_students![index].name!'),
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          Center(
+            child: TextButton(
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(kbuttonColor2)),
+              // color: kbackgroundColor1,
+              child: Text(
+                'حسنا',
+                style: TextStyle(fontFamily: 'GE-medium', color: Colors.black),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   // int _selectedIndex = 0;
 
   // _onSelected(int index) {
@@ -248,6 +287,7 @@ class _Show_Group_PresenceState extends State<Show_Group_Presence> {
     });
   }
 
+  TextEditingController searchcontroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -281,14 +321,54 @@ class _Show_Group_PresenceState extends State<Show_Group_Presence> {
                       buildChip('تاريخ الحصه :  ${widget.mylesson!.date}'),
                       buildChip(
                           'الحضور:  ${widget.mylesson!.students!.length.toString()}'),
-                      buildChip(
-                          'التعويض:  ${widget.mylesson!.compensateStudents!.length.toString()}'),
+                      InkWell(
+                        onTap: () {
+                          // _showstudentsCompensate(
+                          //     title: 'التعويض',
+                          //     context: context,
+                          //     com_students:
+                          //         widget.mylesson!.compensateStudents!);
+                        },
+                        child: buildChip(
+                            'التعويض:  ${widget.mylesson!.compensateStudents!.length.toString()}'),
+                      ),
                       InkWell(
                           onTap: () {
                             launch(
                                 'https://development.mrsaidmostafa.com/api/exports/students/appointments/${widget.mylesson!.id!}');
                           },
                           child: buildChip('تصدير اكسل', link: true)),
+                      InkWell(
+                        child: buildChip(' بحث', link: true),
+                        onTap: () async {
+                          await showSearch(
+                              context: context,
+                              delegate: StudentSearch(widget.mylesson!));
+                        },
+                        onDoubleTap: () async {
+                          setState(() {
+                            _isloading = true;
+                          });
+                          await Provider.of<AppointmentManager>(this.context,
+                                  listen: false)
+                              .get_students_attending_lesson(
+                                  widget.group_id!, widget.mylessonid!)
+                              .then((value) => setState(() {
+                                    _isloading = false;
+                                  }));
+                        },
+                      ),
+
+                      // TextFormField(
+                      //   controller:searchcontroller ,
+                      //   onFieldSubmitted: (value){
+                      //     if (value == ''){
+
+                      //     }else{
+
+                      //     }
+                      //   },
+                      // ),
                       AppointmentManager.myattend.length > 0
                           ? IconButton(
                               icon: Icon(Icons.refresh),
@@ -894,6 +974,7 @@ class _ListItemState extends State<ListItem> {
                                 _is_checked[widget.Index] = false;
 
                                 print('nammmmmmmmmmmmmmmme');
+
                                 print(widget
                                     .appmgr.student_attend[widget.Index].name);
                                 added_degrees.add(widget.appmgr
@@ -932,4 +1013,173 @@ class _ListItemState extends State<ListItem> {
       ),
     );
   }
+}
+
+class StudentSearch extends SearchDelegate<String> {
+  final AppointmentModel? mylesson;
+
+  StudentSearch(this.mylesson);
+
+  @override
+  List<Widget> buildActions(BuildContext context) => [
+        Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.clear),
+              onPressed: () {
+                if (query.isEmpty) {
+                  close(context, '');
+                } else {
+                  query = '';
+                  showSuggestions(context);
+                }
+              },
+            ),
+          ],
+        )
+      ];
+
+  @override
+  Widget buildLeading(BuildContext context) => IconButton(
+        icon: Icon(Icons.arrow_back),
+        onPressed: () => close(context, ''),
+      );
+
+  @override
+  Widget buildResults(BuildContext context) =>
+      FutureBuilder<List<StudentModelSimple>>(
+        future: Provider.of<AppointmentManager>(context, listen: false)
+            .searchStudentsDegrees(query),
+        builder: (context, snapshot) {
+          print(snapshot.data![0]);
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Center(child: CircularProgressIndicator());
+            default:
+              if (snapshot.hasError) {
+                // print(snapshot.error);
+                return Container(
+                  // color: Colors.black,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'يوجد خطأ',
+                    style: TextStyle(fontSize: 28, color: Colors.white),
+                  ),
+                );
+              } else {
+                return buildResultSuccess(snapshot.data![0]);
+              }
+          }
+        },
+      );
+
+  @override
+  Widget buildSuggestions(BuildContext context) => Container(
+        child: FutureBuilder<List<StudentModelSimple>>(
+          future: Provider.of<AppointmentManager>(context, listen: false)
+              .searchStudentsDegrees(query),
+          builder: (context, snapshot) {
+            print('snapshot.data');
+            print(snapshot.data);
+
+            if (query.isEmpty) return buildNoSuggestions();
+
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return Center(child: CircularProgressIndicator());
+              default:
+                if (snapshot.hasError || snapshot.data!.isEmpty) {
+                  return buildNoSuggestions();
+                } else {
+                  return buildSuggestionsSuccess(snapshot.data);
+                }
+            }
+          },
+        ),
+      );
+
+  Widget buildNoSuggestions() => Center(
+        child: Text(
+          'لا يوجد اقتراحات',
+          style: TextStyle(fontSize: 28, color: Colors.black),
+        ),
+      );
+
+  Widget buildSuggestionsSuccess(List<StudentModelSimple>? suggestions) {
+    return ListView.builder(
+        itemCount: suggestions!.length,
+        itemBuilder: (context, index) {
+          final name_suggestion = suggestions[index].name;
+          print('suggestion');
+          //print(suggestion);
+          final name_queryText = name_suggestion!.substring(0, query.length);
+          print('queryText[0');
+          // print(queryText[0]);
+          final name_remainingText = name_suggestion.substring(query.length);
+
+          return ListTile(
+            onTap: () {
+              Provider.of<AppointmentManager>(context, listen: false)
+                  .setSearch([suggestions[index]]);
+              ;
+
+              Provider.of<AppStateManager>(context, listen: false)
+                  .goToSinglelessonattend(
+                      true, mylesson!.id.toString(), mylesson!);
+              close(context, '');
+
+              // Provider.of<AppStateManager>(context, listen: false)
+              //     .setstudent(suggestions[index]);
+              // Provider.of<AppStateManager>(context, listen: false)
+              //     .goToSingleStudentfromHome(
+              //         true, suggestions[index].id.toString());
+            },
+            leading: Icon(Icons.person),
+            title: RichText(
+              text: TextSpan(
+                text: name_queryText,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+                children: [
+                  TextSpan(
+                    text: name_remainingText,
+                    style: TextStyle(
+                      color: Colors.black45,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  Widget buildResultSuccess(StudentModelSimple student) => Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF3279e2), Colors.purple],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: ListView(
+          padding: EdgeInsets.all(64),
+          children: [
+            Text(
+              student.name!,
+              style: TextStyle(
+                fontSize: 32,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 72),
+            const SizedBox(height: 32),
+          ],
+        ),
+      );
 }

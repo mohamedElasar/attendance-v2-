@@ -76,6 +76,15 @@ class AppointmentManager extends ChangeNotifier {
     }
   }
 
+  Future<List<StudentModelSimple>> searchStudentsDegrees(String filter1) async {
+    return _students_attend.where((e) => e.name!.startsWith(filter1)).toList();
+  }
+
+  void setSearch(List<StudentModelSimple> student) async {
+    _students_attend = student;
+    notifyListeners();
+  }
+
   Future<void> get_appointments(String groupid) async {
     var url =
         Uri.https('development.mrsaidmostafa.com', '/api/groups/$groupid');
