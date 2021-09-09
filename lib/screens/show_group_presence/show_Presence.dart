@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:attendance/constants.dart';
 import 'package:attendance/helper/httpexception.dart';
 import 'package:attendance/managers/App_State_manager.dart';
@@ -19,6 +18,7 @@ import 'package:sqflite/sqflite.dart';
 import 'components/connectivity.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+bool refresh_degree = false;
 String path = '';
 //int count_deree = 0;
 List degree_list = [];
@@ -285,6 +285,20 @@ class _Show_Group_PresenceState extends State<Show_Group_Presence> {
       } catch (e) {}
       if (!mounted) return;
     });
+
+    Future.delayed(Duration.zero, () async {
+      try {
+        await Provider.of<AppointmentManager>(this.context, listen: false)
+            .get_degrees(widget.mylessonid!)
+            .then((_) {
+          setState(() {
+            _isLoading = false;
+          });
+        });
+      } catch (e) {
+        print(e);
+      }
+    });
   }
 
   TextEditingController searchcontroller = TextEditingController();
@@ -338,25 +352,30 @@ class _Show_Group_PresenceState extends State<Show_Group_Presence> {
                                 'https://development.mrsaidmostafa.com/api/exports/students/appointments/${widget.mylesson!.id!}');
                           },
                           child: buildChip('تصدير اكسل', link: true)),
-                      InkWell(
-                        child: buildChip(' بحث', link: true),
-                        onTap: () async {
-                          await showSearch(
-                              context: context,
-                              delegate: StudentSearch(widget.mylesson!));
-                        },
-                        onDoubleTap: () async {
-                          setState(() {
-                            _isloading = true;
-                          });
-                          await Provider.of<AppointmentManager>(this.context,
-                                  listen: false)
-                              .get_students_attending_lesson(
-                                  widget.group_id!, widget.mylessonid!)
-                              .then((value) => setState(() {
-                                    _isloading = false;
-                                  }));
-                        },
+                      Visibility(
+                        visible: AppointmentManager.myattend.length > 0
+                            ? true
+                            : false,
+                        child: InkWell(
+                          child: buildChip(' بحث', link: true),
+                          onTap: () async {
+                            await showSearch(
+                                context: context,
+                                delegate: StudentSearch(widget.mylesson!));
+                          },
+                          onDoubleTap: () async {
+                            setState(() {
+                              _isloading = true;
+                            });
+                            await Provider.of<AppointmentManager>(this.context,
+                                    listen: false)
+                                .get_students_attending_lesson(
+                                    widget.group_id!, widget.mylessonid!)
+                                .then((value) => setState(() {
+                                      _isloading = false;
+                                    }));
+                          },
+                        ),
                       ),
 
                       // TextFormField(
@@ -583,7 +602,8 @@ class _Show_Group_PresenceState extends State<Show_Group_Presence> {
                                   // print('Student__id');
                                   // print(Student__id);
 
-                                  return ListItem(Index, appmgr);
+                                  return ListItem(
+                                      Index, appmgr, widget.mylessonid!);
                                 });
                           }
                         }),
@@ -618,7 +638,8 @@ class ListItem extends StatefulWidget {
   AppointmentManager appmgr;
   @required
   final int Index;
-  ListItem(this.Index, this.appmgr);
+  String lessonid;
+  ListItem(this.Index, this.appmgr, this.lessonid);
   @override
   _ListItemState createState() => _ListItemState();
 }
@@ -630,70 +651,37 @@ class _ListItemState extends State<ListItem> {
 
   // FocusNode _usernameFocusNode = FocusNode();
   bool show_text = false;
-  //List<bool> checkBoxValues = [];
-  //String? Group_Id;
-  // int? Student__id;
+
   var added_degrees = [];
-  // int i = 0;
-  // bool isLoading = false;
-  // bool checked = false;
-  // bool select_all = false;
+
   var colors = [
     kbuttonColor3.withOpacity(.8),
     kbuttonColor3.withOpacity(.6),
   ];
-  // var yearController = TextEditingController();
+
   var degreeController = TextEditingController();
 
-  // String text_value = '';
-
-  // bool _isloading = true;
   List<bool> _isChecked = [];
-  // int search_list_length = 0;
+
   var text_colors = [Colors.black, Colors.black];
-  // String text = '';
-
-  // Map<String, dynamic> _add_data = {
-  //   'year': null,
-  // };
-  // List<String> search_list = [];
-  // String result = '';
-
-  // List<StudentModelSimple> search_list_all = [];
-  // TextEditingController searchController = new TextEditingController();
-  // int _selectedIndex = 0;
 
   _onSelected(int index) {
     setState(() => _selectedIndex = index);
   }
 
-//   Icon _searchIcon = new Icon(Icons.search);
-//   void fieldFocusChange(
-//     BuildContext context,
-//     FocusNode currentFocus,
-// //FocusNode nextFocus
-//   ) {
-//     currentFocus.unfocus();
-//     //FocusScope.of(context).requestFocus(nextFocus);
-//   }
-
-  // void _Selected(bool selected, String dataName) {
-  //   if (selected == true) {
-  //     setState(() {
-  //       userChecked.add(dataName);
-  //     });
-  //   } else {
-  //     setState(() {
-  //       userChecked.remove(dataName);
-  //     });
-  //   }
-  // }
-
-  // bool sent = false;
-
-  // final GlobalKey<FormState> _formKey = GlobalKey();
-  // FocusNode fnode = FocusNode();
-  // var _isLoading = false;
+  void get_degree() async {
+    try {
+      await Provider.of<AppointmentManager>(this.context, listen: false)
+          .get_degrees(widget.lessonid)
+          .then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
 
   void _submit(Student__id, context) async {
     setState(() {
@@ -784,15 +772,7 @@ class _ListItemState extends State<ListItem> {
 
         //
       });
-      // // Update some record
-      // if (count_deree > 1) {
-      //   int count = await database.rawUpdate(
-      //       'UPDATE Test SET degree = ?, id_value = ? WHERE id_value = ?',
-      //       ['$result', '$Student__id', '$Student__id']);
-      //   print('updated: $count');
-      // }
 
-      // Get the records
       List<Map> list = await database.rawQuery('SELECT * FROM Test');
       degree_list = await database.rawQuery('SELECT degree FROM Test');
       id_list = await database.rawQuery('SELECT id_value FROM Test');
@@ -802,18 +782,8 @@ class _ListItemState extends State<ListItem> {
       print('sqflite list');
       print(list);
 
-      //for(true){}
       print('_connectionStatus');
       print(_connectionStatus.toString());
-      // setState(() {
-      //   if (_connectionStatus == ConnectivityResult.none) {
-      //     print("no connection again");
-      //   } else {
-      //     print("reconnected");
-      //   }
-      // });
-
-// assert(const DeepCollectionEquality().equals(list, expectedList));
     }
   }
 
@@ -828,8 +798,8 @@ class _ListItemState extends State<ListItem> {
     subscription = connectivity!.onConnectivityChanged
         .listen((ConnectivityResult myresult) {
       _connectionStatus = myresult;
-      print('_connectionStatus');
-      print(_connectionStatus);
+      // print('_connectionStatus');
+      // print(_connectionStatus);
       if (myresult == ConnectivityResult.wifi)
       // ||
       //     result == ConnectivityResult.mobile)
@@ -907,107 +877,126 @@ class _ListItemState extends State<ListItem> {
                 ?
                 // visible: _checked == false  ? false : true,
                 Row(children: [
-                    Text(
-                      'الدرجة ',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        width: 90,
-                        color: colors[widget.Index % colors.length],
-                        child: TextFormField(
-                          // focusNode: _usernameFocusNode,
-                          // autofocus: true,
-                          keyboardType: TextInputType.number,
-                          // onFieldSubmitted: (val) {
-                          //   print('v_vallllll');
-                          //   print(val);
-                          // },
-                          style: TextStyle(
-                              // color: Colors
-                              //     .white,
-                              fontWeight: FontWeight.bold),
-                          onFieldSubmitted: (String str) {
-                            // fieldFocusChange(context, _usernameFocusNode);
-                            if (str == '') {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.red[400],
-                                  content: Text(
-                                    'ادخل  درجة لاضافتها',
-                                    style: TextStyle(fontFamily: 'GE-medium'),
-                                  ),
-                                  duration: Duration(seconds: 3),
-                                ),
+                    // Text(
+                    //   'الدرجة ',
+                    //   style:
+                    //       TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    // ),
+                    // SizedBox(
+                    //   width: 5,
+                    // ),
+
+                    // SizedBox(width: 5,),
+                    '${widget.appmgr.appointments_degree![widget.Index].degree}'
+                                .isNotEmpty &&
+                            '${widget.appmgr.appointments_degree![widget.Index].degree}' !=
+                                "null"
+                        ? Container(
+                            color: Colors.amber,
+                            child: Consumer<AppointmentManager>(
+                                builder: (_, appointmanager, child) {
+                              return Text(
+                                // 'الدرجة ',
+
+                                appointmanager
+                                    .appointments_degree![widget.Index].degree!,
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
                               );
+                            }),
+                          )
+                        : SizedBox(
+                            width: 10,
+                          ),
+                    Spacer(),
+                    Icon(Icons.edit),
 
-                              print('noooooooooooooooooo');
-                            }
-                            print('nammmmmmmmmmmmmmmme');
-                            print(widget
-                                .appmgr.student_attend[widget.Index].name);
-                            print(
-                                widget.appmgr.student_attend[widget.Index].id);
+                    // show_box == true
+                    // ?
+                    Container(
+                      width: 70,
+                      color: colors[widget.Index % colors.length],
+                      child: TextFormField(
+                        // focusNode: _usernameFocusNode,
+                        // autofocus: true,
+                        keyboardType: TextInputType.number,
+                        // onFieldSubmitted: (val) {
+                        //   print('v_vallllll');
+                        //   print(val);
+                        // },
+                        style: TextStyle(
+                            // color: Colors
+                            //     .white,
+                            fontWeight: FontWeight.bold),
+                        onFieldSubmitted: (String str) {
+                          // fieldFocusChange(context, _usernameFocusNode);
+                          if (str == '') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.red[400],
+                                content: Text(
+                                  'ادخل  درجة لاضافتها',
+                                  style: TextStyle(fontFamily: 'GE-medium'),
+                                ),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+
+                            // print('noooooooooooooooooo');
+                          }
+                          // print('nammmmmmmmmmmmmmmme');
+                          // print(widget
+                          //     .appmgr.student_attend[widget.Index].name);
+                          // print(widget
+                          //     .appmgr.student_attend[widget.Index].id);
+                          setState(() {
+                            result = str;
+                            // print('ressssssssult');
+                            // print(result);
+
+                            // if (_selectedIndex == widget.Index) {
                             setState(() {
-                              result = str;
-                              print('ressssssssult');
-                              print(result);
+                              show_text = !show_text;
 
-                              // if (_selectedIndex == widget.Index) {
-                              setState(() {
-                                show_text = !show_text;
+                              _selectedIndex;
+                              // if (_checked == true) {
+                              _submit(
+                                  widget.appmgr.student_attend[widget.Index].id,
+                                  context);
+                              get_degree();
+                              refresh_degree = true;
+                              widget.appmgr.appointments_degree![widget.Index]
+                                  .degree;
+                              // _checked = false;
+                              //   _is=false;
+                              // }
 
-                                _selectedIndex;
-                                // if (_checked == true) {
-                                _submit(
-                                    widget
-                                        .appmgr.student_attend[widget.Index].id,
-                                    context);
-                                // _checked = false;
-                                //   _is=false;
-                                // }
-                                _is_checked[widget.Index] = false;
+                              _is_checked[widget.Index] == true;
 
-                                print('nammmmmmmmmmmmmmmme');
+                              // print('nammmmmmmmmmmmmmmme');
+                              // print(
+                              //   widget.appmgr.appointments_degree![widget.Index]
+                              //       .degree!,
+                              // );
 
-                                print(widget
-                                    .appmgr.student_attend[widget.Index].name);
-                                added_degrees.add(widget.appmgr
-                                    .student_attend[widget.Index].parentPhone);
+                              // print(widget
+                              //     .appmgr.student_attend[widget.Index].name);
+                              // added_degrees.add(widget.appmgr
+                              //     .student_attend[widget.Index].parentPhone);
 
-                                added_degrees;
+                              added_degrees;
 
-                                Lesson_Id;
+                              Lesson_Id;
+                            });
+                          });
+                          degreeController.clear();
+                        },
 
-                                print('degreeeeeeeeee');
-                                // print( appmgr
-                                //       .appointment[Index].students![Index].degree!);
-                              });
-                            }
-
-                                // _submit();
-                                // }
-                                );
-                            degreeController.clear();
-                          },
-                          // onSaved: (v) {
-
-                          //    print('v_vvvvvvvvv');
-                          //   print(v);
-                          // },
-                          controller: degreeController,
-                        ),
+                        controller: degreeController,
                       ),
-                    ),
+                    )
                   ])
-
-                //Text(result)
-                : SizedBox(),
+                : SizedBox()
           ],
         ),
       ),
@@ -1057,7 +1046,6 @@ class StudentSearch extends SearchDelegate<String> {
               return Center(child: CircularProgressIndicator());
             default:
               if (snapshot.hasError) {
-                // print(snapshot.error);
                 return Container(
                   // color: Colors.black,
                   alignment: Alignment.center,
@@ -1127,12 +1115,6 @@ class StudentSearch extends SearchDelegate<String> {
                   .goToSinglelessonattend(
                       true, mylesson!.id.toString(), mylesson!);
               close(context, '');
-
-              // Provider.of<AppStateManager>(context, listen: false)
-              //     .setstudent(suggestions[index]);
-              // Provider.of<AppStateManager>(context, listen: false)
-              //     .goToSingleStudentfromHome(
-              //         true, suggestions[index].id.toString());
             },
             leading: Icon(Icons.person),
             title: RichText(
