@@ -1,4 +1,5 @@
 import 'dart:async';
+// import 'dart:html';
 import 'package:attendance/constants.dart';
 import 'package:attendance/helper/httpexception.dart';
 import 'package:attendance/managers/App_State_manager.dart';
@@ -909,7 +910,72 @@ class _ListItemState extends State<ListItem> {
                             width: 10,
                           ),
                     Spacer(),
-                    Icon(Icons.edit),
+                    InkWell(
+                        onTap: () {
+                          print('object');
+                          // fieldFocusChange(context, _usernameFocusNode);
+                          if (degreeController.text == '') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.red[400],
+                                content: Text(
+                                  'ادخل  درجة لاضافتها',
+                                  style: TextStyle(fontFamily: 'GE-medium'),
+                                ),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+
+                            // print('noooooooooooooooooo');
+                          }
+                          // print('nammmmmmmmmmmmmmmme');
+                          // print(widget
+                          //     .appmgr.student_attend[widget.Index].name);
+                          // print(widget
+                          //     .appmgr.student_attend[widget.Index].id);
+                          setState(() {
+                            result = degreeController.text;
+                            // print('ressssssssult');
+                            // print(result);
+
+                            // if (_selectedIndex == widget.Index) {
+                            setState(() {
+                              show_text = !show_text;
+
+                              _selectedIndex;
+                              // if (_checked == true) {
+                              _submit(
+                                  widget.appmgr.student_attend[widget.Index].id,
+                                  context);
+                              get_degree();
+                              refresh_degree = true;
+                              widget.appmgr.appointments_degree![widget.Index]
+                                  .degree;
+                              // _checked = false;
+                              //   _is=false;
+                              // }
+
+                              _is_checked[widget.Index] == true;
+
+                              // print('nammmmmmmmmmmmmmmme');
+                              // print(
+                              //   widget.appmgr.appointments_degree![widget.Index]
+                              //       .degree!,
+                              // );
+
+                              // print(widget
+                              //     .appmgr.student_attend[widget.Index].name);
+                              // added_degrees.add(widget.appmgr
+                              //     .student_attend[widget.Index].parentPhone);
+
+                              added_degrees;
+
+                              Lesson_Id;
+                            });
+                          });
+                          degreeController.clear();
+                        },
+                        child: Icon(Icons.edit)),
 
                     // show_box == true
                     // ?
@@ -920,6 +986,7 @@ class _ListItemState extends State<ListItem> {
                         // focusNode: _usernameFocusNode,
                         // autofocus: true,
                         keyboardType: TextInputType.number,
+
                         // onFieldSubmitted: (val) {
                         //   print('v_vallllll');
                         //   print(val);
@@ -928,7 +995,9 @@ class _ListItemState extends State<ListItem> {
                             // color: Colors
                             //     .white,
                             fontWeight: FontWeight.bold),
+
                         onFieldSubmitted: (String str) {
+                          print('object');
                           // fieldFocusChange(context, _usernameFocusNode);
                           if (str == '') {
                             ScaffoldMessenger.of(context).showSnackBar(
