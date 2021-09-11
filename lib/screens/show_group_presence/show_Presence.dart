@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 // import 'dart:html';
 import 'package:attendance/constants.dart';
 import 'package:attendance/helper/httpexception.dart';
@@ -670,7 +671,7 @@ class _ListItemState extends State<ListItem> {
     setState(() => _selectedIndex = index);
   }
 
-  void get_degree() async {
+  Future<void> get_degree() async {
     try {
       await Provider.of<AppointmentManager>(this.context, listen: false)
           .get_degrees(widget.lessonid)
@@ -684,7 +685,134 @@ class _ListItemState extends State<ListItem> {
     }
   }
 
-  void _submit(Student__id, context) async {
+  Future<void> _submitwindows(Student__id, context) async {
+    setState(() {
+      _isLoading = true;
+      ConnectivityResult.wifi;
+    });
+    // var connectivityResult = await (Connectivity().checkConnectivity());
+    // if (connectivityResult == ConnectivityResult.wifi) {
+    try {
+      setState(() {
+        Group_Id;
+      });
+
+      await Provider.of<GroupManager>(context, listen: false)
+          .add_degree(result, '$Student__id', Lesson_Id)
+          .then((_) {
+            result = '';
+            setState(() {
+              //sent = true;
+            });
+          })
+          .then((value) => setState(() {
+                _isLoading = false;
+              }))
+          .then(
+            (_) => ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: Colors.green[300],
+                content: Text(
+                  'تم اضافه الدرجة بنجاح',
+                  style: TextStyle(fontFamily: 'GE-medium'),
+                ),
+                duration: Duration(seconds: 3),
+              ),
+            ),
+          );
+    } on HttpException catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green[300],
+          content: Text(
+            'ادخل  درجة لاضافتها',
+            style: TextStyle(fontFamily: 'GE-medium'),
+          ),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red[400],
+          content: Text(
+            'ادخل  درجة لاضافتها',
+            style: TextStyle(fontFamily: 'GE-medium'),
+          ),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+//      else {
+//       setState(() {
+//         connectivityResult;
+//       });
+//       print("no connection");
+
+//       var databasesPath = await getDatabasesPath();
+//       path = join(databasesPath, 'student.db');
+
+// //Delete the database
+//       //await deleteDatabase(path);
+
+// // open the database
+//       Database database = await openDatabase(path, version: 1,
+//           onCreate: (Database db, int version) async {
+//         // When creating the db, create the table
+//         await db.execute(
+//             'CREATE TABLE Test (id INTEGER PRIMARY KEY, degree TEXT, id_value TEXT)');
+//       });
+
+//       await database.transaction((txn) async {
+//         int id1 = await txn.rawInsert(
+//             'INSERT INTO Test(degree, id_value) VALUES($result, $Student__id)');
+//         print('inserted1: $id1');
+//         // count_deree + 1;
+
+//         //
+//       });
+
+//       List<Map> list = await database.rawQuery('SELECT * FROM Test');
+//       degree_list = await database.rawQuery('SELECT degree FROM Test');
+//       id_list = await database.rawQuery('SELECT id_value FROM Test');
+
+//       print('sqflite degree');
+//       print(degree_list[0]['degree']);
+//       print('sqflite list');
+//       print(list);
+
+//       print('_connectionStatus');
+//       print(_connectionStatus.toString());
+//     }
+//   }
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _is_checked = List<bool>.filled(mysearch_list.length, false);
+
+//     // print('okkkk');
+//     // print(mysearch_list);
+//     connectivity = new Connectivity();
+//     subscription = connectivity!.onConnectivityChanged
+//         .listen((ConnectivityResult myresult) {
+//       _connectionStatus = myresult;
+//       // print('_connectionStatus');
+//       // print(_connectionStatus);
+//       if (myresult == ConnectivityResult.wifi)
+//       // ||
+//       //     result == ConnectivityResult.mobile)
+//       {
+//         setState(() {});
+//       }
+//     });
+//   }
+  Future<void> _submit(Student__id, context) async {
     setState(() {
       _isLoading = true;
       ConnectivityResult.wifi;
@@ -911,7 +1039,7 @@ class _ListItemState extends State<ListItem> {
                           ),
                     Spacer(),
                     InkWell(
-                        onTap: () {
+                        onTap: () async {
                           print('object');
                           // fieldFocusChange(context, _usernameFocusNode);
                           if (degreeController.text == '') {
@@ -925,55 +1053,41 @@ class _ListItemState extends State<ListItem> {
                                 duration: Duration(seconds: 3),
                               ),
                             );
-
-                            // print('noooooooooooooooooo');
-                          }
-                          // print('nammmmmmmmmmmmmmmme');
-                          // print(widget
-                          //     .appmgr.student_attend[widget.Index].name);
-                          // print(widget
-                          //     .appmgr.student_attend[widget.Index].id);
-                          setState(() {
-                            result = degreeController.text;
-                            // print('ressssssssult');
-                            // print(result);
-
-                            // if (_selectedIndex == widget.Index) {
+                          } else {
                             setState(() {
+                              result = degreeController.text;
+
                               show_text = !show_text;
-
-                              _selectedIndex;
-                              // if (_checked == true) {
-                              _submit(
-                                  widget.appmgr.student_attend[widget.Index].id,
-                                  context);
-                              get_degree();
-                              refresh_degree = true;
-                              widget.appmgr.appointments_degree![widget.Index]
-                                  .degree;
-                              // _checked = false;
-                              //   _is=false;
-                              // }
-
-                              _is_checked[widget.Index] == true;
-
-                              // print('nammmmmmmmmmmmmmmme');
-                              // print(
-                              //   widget.appmgr.appointments_degree![widget.Index]
-                              //       .degree!,
-                              // );
-
-                              // print(widget
-                              //     .appmgr.student_attend[widget.Index].name);
-                              // added_degrees.add(widget.appmgr
-                              //     .student_attend[widget.Index].parentPhone);
-
-                              added_degrees;
-
-                              Lesson_Id;
                             });
-                          });
-                          degreeController.clear();
+                            // _selectedIndex; ;;;
+
+                            // if (_checked == true) {
+                            if (Platform.isWindows) {
+                              await _submitwindows(
+                                      widget.appmgr.student_attend[widget.Index]
+                                          .id,
+                                      context)
+                                  .then((value) => get_degree().then(
+                                      (value) => degreeController.clear()));
+                            } else {
+                              await _submit(
+                                      widget.appmgr.student_attend[widget.Index]
+                                          .id,
+                                      context)
+                                  .then((value) => get_degree().then(
+                                      (value) => degreeController.clear()));
+                            }
+
+                            // refresh_degree = true;;;;
+                            // widget;;;
+                            //     .appmgr.appointments_degree![widget.Index].degree;;;;
+
+                            _is_checked[widget.Index] == true;
+                          }
+
+                          // added_degrees;
+
+                          // Lesson_Id;
                         },
                         child: Icon(Icons.edit)),
 

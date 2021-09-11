@@ -162,7 +162,10 @@ class AppRouter extends RouterDelegate
           Single_Student_Screen.page(
               studentid: appStateManager.studentIdSelected, user: user.center),
         if (authmanager.isLoggedIn &&
-            authmanager.type == user.center &&
+            (authmanager.type == user.center ||
+                authmanager.type == user.assistant ||
+                authmanager.type == user.assistant0 ||
+                authmanager.type == user.teacher) &&
             (appStateManager.singleStudent ||
                 appStateManager.singleStudentFromHome) &&
             appStateManager.singleStudentAttend)
